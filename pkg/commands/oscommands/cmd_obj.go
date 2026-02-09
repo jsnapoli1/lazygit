@@ -1,6 +1,7 @@
 package oscommands
 
 import (
+	"context"
 	"os/exec"
 	"strings"
 
@@ -37,6 +38,9 @@ type CmdObj struct {
 
 	// can be set so that we don't run certain commands simultaneously
 	mutex *deadlock.Mutex
+
+	// if set, the command will be run with this context, allowing timeout/cancellation
+	ctx context.Context
 }
 
 type CredentialStrategy int
@@ -222,6 +226,15 @@ func (self *CmdObj) GetCredentialStrategy() CredentialStrategy {
 
 func (self *CmdObj) GetTask() gocui.Task {
 	return self.task
+}
+
+func (self *CmdObj) WithContext(ctx context.Context) *CmdObj {
+	self.ctx = ctx
+	return self
+}
+
+func (self *CmdObj) Context() context.Context {
+	return self.ctx
 }
 
 func (self *CmdObj) Clone() *CmdObj {

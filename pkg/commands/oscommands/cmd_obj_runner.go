@@ -105,7 +105,8 @@ func (self *cmdObjRunner) RunWithOutputAux(cmdObj *CmdObj) (string, error) {
 	}
 
 	t := time.Now()
-	output, err := sanitisedCommandOutput(cmdObj.GetCmd().CombinedOutput())
+	cmd := cmdWithContext(cmdObj)
+	output, err := sanitisedCommandOutput(cmd.CombinedOutput())
 	if err != nil {
 		self.log.WithField("command", cmdObj.ToString()).Error(output)
 	}
@@ -124,7 +125,7 @@ func (self *cmdObjRunner) RunWithOutputsAux(cmdObj *CmdObj) (string, string, err
 
 	t := time.Now()
 	var outBuffer, errBuffer bytes.Buffer
-	cmd := cmdObj.GetCmd()
+	cmd := cmdWithContext(cmdObj)
 	cmd.Stdout = &outBuffer
 	cmd.Stderr = &errBuffer
 	err := cmd.Run()
@@ -192,6 +193,22 @@ func (self *cmdObjRunner) RunAndProcessLines(cmdObj *CmdObj, onLine func(line st
 	return nil
 }
 
+// cmdWithContext returns a new exec.Cmd with the given context applied if
+// the CmdObj has a context set. The original cmd's Env, Dir, and Stdin are
+// copied to the new command. If no context is set, the original cmd is returned.
+func cmdWithContext(cmdObj *CmdObj) *exec.Cmd {
+	cmd := cmdObj.GetCmd()
+	ctx := cmdObj.Context()
+	if ctx == nil {
+		return cmd
+	}
+	ctxCmd := exec.CommandContext(ctx, cmd.Path, cmd.Args[1:]...)
+	ctxCmd.Env = cmd.Env
+	ctxCmd.Dir = cmd.Dir
+	ctxCmd.Stdin = cmd.Stdin
+	return ctxCmd
+}
+
 func (self *cmdObjRunner) logCmdObj(cmdObj *CmdObj) {
 	self.guiIO.logCommandFn(cmdObj.ToString(), true)
 }
@@ -239,7 +256,7 @@ func (self *cmdObjRunner) runAndStreamAux(
 		self.logCmdObj(cmdObj)
 	}
 	self.log.WithField("command", cmdObj.ToString()).Debug("RunCommand")
-	cmd := cmdObj.GetCmd()
+	cmd := cmdWithContext(cmdObj)
 
 	var stderr bytes.Buffer
 	cmd.Stderr = io.MultiWriter(cmdWriter, &stderr)

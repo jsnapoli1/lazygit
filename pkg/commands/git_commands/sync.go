@@ -1,7 +1,11 @@
 package git_commands
 
 import (
+	"context"
 	"fmt"
+	"net"
+	"strings"
+	"time"
 
 	"github.com/go-errors/errors"
 	"github.com/jesseduffield/gocui"
@@ -83,8 +87,41 @@ func (self *SyncCommands) FetchBackgroundCmdObj() *oscommands.CmdObj {
 	return cmdObj
 }
 
-func (self *SyncCommands) FetchBackground() error {
-	return self.FetchBackgroundCmdObj().Run()
+func (self *SyncCommands) FetchBackground(ctx context.Context) error {
+	cmdObj := self.FetchBackgroundCmdObj()
+	if ctx != nil {
+		cmdObj.WithContext(ctx)
+	}
+	return cmdObj.Run()
+}
+
+// CheckReachability attempts a TCP dial to the host of the given remote.
+// Returns nil if reachable or if the remote is local (file:// or path).
+// Returns an error if the remote host is unreachable within the timeout.
+// Fails open: if the URL cannot be resolved, returns nil to let git handle it.
+func (self *SyncCommands) CheckReachability(remoteName string, timeout time.Duration) error {
+	cmdArgs := NewGitCmd("ls-remote").
+		Arg("--get-url", remoteName).
+		ToArgv()
+
+	url, err := self.cmd.New(cmdArgs).DontLog().RunWithOutput()
+	if err != nil {
+		// Can't determine URL; fail open and let git try
+		return nil
+	}
+	url = strings.TrimSpace(url)
+
+	hostPort, isRemote := ParseRemoteHostPort(url)
+	if !isRemote {
+		return nil
+	}
+
+	conn, err := net.DialTimeout("tcp", hostPort, timeout)
+	if err != nil {
+		return fmt.Errorf("remote %s unreachable at %s: %w", remoteName, hostPort, err)
+	}
+	conn.Close()
+	return nil
 }
 
 type PullOptions struct {

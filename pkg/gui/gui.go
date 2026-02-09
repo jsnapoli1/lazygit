@@ -889,6 +889,10 @@ func (gui *Gui) RunAndHandleError(startArgs appTypes.StartArgs) error {
 
 			close(gui.stopChan)
 
+			if gui.BackgroundRoutineMgr.fileWatcher != nil {
+				gui.BackgroundRoutineMgr.fileWatcher.Close()
+			}
+
 			if errors.Is(err, gocui.ErrQuit) {
 				if gui.c.State().GetRetainOriginalDir() {
 					if err := gui.helpers.RecordDirectory.RecordDirectory(gui.InitialDir); err != nil {

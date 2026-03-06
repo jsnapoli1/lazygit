@@ -137,22 +137,36 @@ func GetWindowDimensions(args WindowArrangementArgs) map[string]boxlayout.Dimens
 		infoSectionSize = 1
 	}
 
+	// Determine weights for top section (files/branches + main) vs bottom section (commits)
+	topSectionWeight, commitsSectionWeight := getVerticalSectionWeights(args)
+
 	root := &boxlayout.Box{
 		Direction: boxlayout.ROW,
 		Children: []*boxlayout.Box{
 			{
-				Direction: sidePanelsDirection,
+				Direction: boxlayout.ROW,
 				Weight:    1,
 				Children: []*boxlayout.Box{
 					{
-						Direction:           boxlayout.ROW,
-						Weight:              sideSectionWeight,
-						ConditionalChildren: sidePanelChildren(args),
+						Direction: sidePanelsDirection,
+						Weight:    topSectionWeight,
+						Children: []*boxlayout.Box{
+							{
+								Direction:           boxlayout.ROW,
+								Weight:              sideSectionWeight,
+								ConditionalChildren: sidePanelChildren(args),
+							},
+							{
+								Direction: boxlayout.ROW,
+								Weight:    mainSectionWeight,
+								Children:  mainPanelChildren(args),
+							},
+						},
 					},
 					{
-						Direction: boxlayout.ROW,
-						Weight:    mainSectionWeight,
-						Children:  mainPanelChildren(args),
+						Direction:           boxlayout.ROW,
+						Weight:              commitsSectionWeight,
+						ConditionalChildren: commitsPanelChildren(args),
 					},
 				},
 			},
@@ -168,6 +182,23 @@ func GetWindowDimensions(args WindowArrangementArgs) map[string]boxlayout.Dimens
 	limitWindows := boxlayout.ArrangeWindows(&boxlayout.Box{Window: "limit"}, 0, 0, args.Width, args.Height)
 
 	return MergeMaps(layerOneWindows, limitWindows)
+}
+
+func getVerticalSectionWeights(args WindowArrangementArgs) (int, int) {
+	// In full screen mode with commits focused, hide the top section
+	if args.ScreenMode == types.SCREEN_FULL && args.CurrentSideWindow == "commits" {
+		return 0, 1
+	}
+	// In full screen mode with files/branches focused, hide the commits section
+	if args.ScreenMode == types.SCREEN_FULL && (args.CurrentSideWindow == "files" || args.CurrentSideWindow == "branches") {
+		return 1, 0
+	}
+	// In half screen mode with commits focused, show commits larger
+	if args.ScreenMode == types.SCREEN_HALF && args.CurrentSideWindow == "commits" {
+		return 1, 2
+	}
+	// Default: equal weights
+	return 1, 1
 }
 
 func mainPanelChildren(args WindowArrangementArgs) []*boxlayout.Box {
@@ -405,6 +436,16 @@ func getExtrasWindowSize(args WindowArrangementArgs) int {
 func sidePanelChildren(args WindowArrangementArgs) func(width int, height int) []*boxlayout.Box {
 	return func(width int, height int) []*boxlayout.Box {
 		if args.ScreenMode == types.SCREEN_FULL || args.ScreenMode == types.SCREEN_HALF {
+			// In full/half screen mode, only files and branches are in this section
+			// If commits is focused, we still show files/branches normally (commits is in its own section)
+			if args.CurrentSideWindow == "commits" {
+				// When commits is focused, files/branches should still be visible in their section
+				return []*boxlayout.Box{
+					{Window: "files", Weight: 1},
+					{Window: "branches", Weight: 1},
+				}
+			}
+
 			fullHeightBox := func(window string) *boxlayout.Box {
 				if window == args.CurrentSideWindow {
 					return &boxlayout.Box{
@@ -422,7 +463,6 @@ func sidePanelChildren(args WindowArrangementArgs) func(width int, height int) [
 			return []*boxlayout.Box{
 				fullHeightBox("files"),
 				fullHeightBox("branches"),
-				fullHeightBox("commits"),
 			}
 		} else if height >= 28 {
 			accordionMode := args.UserConfig.Gui.ExpandFocusedSidePanel
@@ -440,7 +480,6 @@ func sidePanelChildren(args WindowArrangementArgs) func(width int, height int) [
 			return []*boxlayout.Box{
 				accordionBox(&boxlayout.Box{Window: "files", Weight: 1}),
 				accordionBox(&boxlayout.Box{Window: "branches", Weight: 1}),
-				accordionBox(&boxlayout.Box{Window: "commits", Weight: 1}),
 			}
 		}
 
@@ -450,6 +489,8 @@ func sidePanelChildren(args WindowArrangementArgs) func(width int, height int) [
 		}
 
 		squashedSidePanelBox := func(window string) *boxlayout.Box {
+			// For files and branches, check if either is focused
+			// (commits is in a separate section so it won't match here)
 			if window == args.CurrentSideWindow {
 				return &boxlayout.Box{
 					Window: window,
@@ -463,10 +504,34 @@ func sidePanelChildren(args WindowArrangementArgs) func(width int, height int) [
 			}
 		}
 
+		// If commits is focused, both files and branches get squashed
+		// We need at least one with Weight to avoid empty weights
+		if args.CurrentSideWindow == "commits" {
+			return []*boxlayout.Box{
+				{Window: "files", Weight: 1},
+				{Window: "branches", Weight: 1},
+			}
+		}
+
 		return []*boxlayout.Box{
 			squashedSidePanelBox("files"),
 			squashedSidePanelBox("branches"),
-			squashedSidePanelBox("commits"),
+		}
+	}
+}
+
+func commitsPanelChildren(args WindowArrangementArgs) func(width int, height int) []*boxlayout.Box {
+	return func(width int, height int) []*boxlayout.Box {
+		// In full/half screen mode, show commits at full size when focused
+		if (args.ScreenMode == types.SCREEN_FULL || args.ScreenMode == types.SCREEN_HALF) &&
+			args.CurrentSideWindow == "commits" {
+			return []*boxlayout.Box{
+				{Window: "commits", Weight: 1},
+			}
+		}
+
+		return []*boxlayout.Box{
+			{Window: "commits", Weight: 1},
 		}
 	}
 }

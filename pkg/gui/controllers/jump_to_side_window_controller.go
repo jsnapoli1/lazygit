@@ -33,7 +33,7 @@ func (self *JumpToSideWindowController) GetKeybindings(opts types.KeybindingsOpt
 	windows := self.c.Helpers().Window.SideWindows()
 
 	if len(opts.Config.Universal.JumpToBlock) != len(windows) {
-		log.Fatal("Jump to block keybindings cannot be set. Exactly 5 keybindings must be supplied.")
+		log.Fatal("Jump to block keybindings cannot be set. Exactly 3 keybindings must be supplied.")
 	}
 
 	return lo.Map(windows, func(window string, index int) *types.Binding {

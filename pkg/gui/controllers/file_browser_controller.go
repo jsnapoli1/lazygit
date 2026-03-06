@@ -57,6 +57,11 @@ func (self *FileBrowserController) GetKeybindings(opts types.KeybindingsOpts) []
 			Handler:     self.close,
 			Description: self.c.Tr.Cancel,
 		},
+		{
+			Key:         opts.GetKey(opts.Config.Universal.Edit),
+			Handler:     self.edit,
+			Description: self.c.Tr.Edit,
+		},
 	}
 }
 
@@ -95,6 +100,17 @@ func (self *FileBrowserController) confirm() error {
 func (self *FileBrowserController) close() error {
 	self.c.Context().Pop()
 	return nil
+}
+
+func (self *FileBrowserController) edit() error {
+	path := self.context().GetSelectedPath()
+	if path == "" {
+		return nil
+	}
+
+	// Close the file browser and edit the file
+	self.c.Context().Pop()
+	return self.c.Helpers().Files.EditFiles([]string{path})
 }
 
 func (self *FileBrowserController) GetMouseKeybindings(opts types.KeybindingsOpts) []*gocui.ViewMouseBinding {

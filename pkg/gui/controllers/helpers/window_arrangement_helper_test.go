@@ -47,10 +47,8 @@ func TestGetWindowDimensions(t *testing.T) {
 			name:       "default",
 			mutateArgs: func(args *WindowArrangementArgs) {},
 			expected: `
-			╭status─────────────────╮╭main────────────────────────────────────────────╮
+			╭files──────────────────╮╭main────────────────────────────────────────────╮
 			│                       ││                                                │
-			╰───────────────────────╯│                                                │
-			╭files──────────────────╮│                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
@@ -65,8 +63,10 @@ func TestGetWindowDimensions(t *testing.T) {
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
+			│                       ││                                                │
 			╰───────────────────────╯│                                                │
 			╭commits────────────────╮│                                                │
+			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
@@ -87,10 +87,8 @@ func TestGetWindowDimensions(t *testing.T) {
 				args.CurrentSideWindow = "stash"
 			},
 			expected: `
-			╭status─────────────────╮╭main────────────────────────────────────────────╮
+			╭files──────────────────╮╭main────────────────────────────────────────────╮
 			│                       ││                                                │
-			╰───────────────────────╯│                                                │
-			╭files──────────────────╮│                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
@@ -109,8 +107,10 @@ func TestGetWindowDimensions(t *testing.T) {
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
+			│                       ││                                                │
 			╰───────────────────────╯│                                                │
 			╭stash──────────────────╮│                                                │
+			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
@@ -127,10 +127,9 @@ func TestGetWindowDimensions(t *testing.T) {
 				args.UserConfig.Gui.ExpandFocusedSidePanel = true
 			},
 			expected: `
-			╭status─────────────────╮╭main────────────────────────────────────────────╮
+			╭files──────────────────╮╭main────────────────────────────────────────────╮
 			│                       ││                                                │
-			╰───────────────────────╯│                                                │
-			╭files──────────────────╮│                                                │
+			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
@@ -142,6 +141,7 @@ func TestGetWindowDimensions(t *testing.T) {
 			│                       ││                                                │
 			╰───────────────────────╯│                                                │
 			╭branches───────────────╮│                                                │
+			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
@@ -168,10 +168,9 @@ func TestGetWindowDimensions(t *testing.T) {
 				args.UserConfig.Gui.ExpandedSidePanelWeight = 4
 			},
 			expected: `
-			╭status─────────────────╮╭main────────────────────────────────────────────╮
+			╭files──────────────────╮╭main────────────────────────────────────────────╮
 			│                       ││                                                │
-			╰───────────────────────╯│                                                │
-			╭files──────────────────╮│                                                │
+			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
@@ -187,6 +186,7 @@ func TestGetWindowDimensions(t *testing.T) {
 			│                       ││                                                │
 			╰───────────────────────╯│                                                │
 			╭branches───────────────╮│                                                │
+			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			╰───────────────────────╯│                                                │
@@ -208,10 +208,8 @@ func TestGetWindowDimensions(t *testing.T) {
 				args.UserConfig.Gui.SidePanelWidth = 0.5
 			},
 			expected: `
-			╭status──────────────────────────────╮╭main───────────────────────────────╮
+			╭files───────────────────────────────╮╭main───────────────────────────────╮
 			│                                    ││                                   │
-			╰────────────────────────────────────╯│                                   │
-			╭files───────────────────────────────╮│                                   │
 			│                                    ││                                   │
 			│                                    ││                                   │
 			│                                    ││                                   │
@@ -226,8 +224,10 @@ func TestGetWindowDimensions(t *testing.T) {
 			│                                    ││                                   │
 			│                                    ││                                   │
 			│                                    ││                                   │
+			│                                    ││                                   │
 			╰────────────────────────────────────╯│                                   │
 			╭commits─────────────────────────────╮│                                   │
+			│                                    ││                                   │
 			│                                    ││                                   │
 			│                                    ││                                   │
 			│                                    ││                                   │
@@ -248,10 +248,8 @@ func TestGetWindowDimensions(t *testing.T) {
 				args.UserConfig.Gui.SidePanelWidth = 0.8
 			},
 			expected: `
-			╭status────────────────────────────────────────────────────╮╭main─────────╮
+			╭files─────────────────────────────────────────────────────╮╭main─────────╮
 			│                                                          ││             │
-			╰──────────────────────────────────────────────────────────╯│             │
-			╭files─────────────────────────────────────────────────────╮│             │
 			│                                                          ││             │
 			│                                                          ││             │
 			│                                                          ││             │
@@ -266,8 +264,10 @@ func TestGetWindowDimensions(t *testing.T) {
 			│                                                          ││             │
 			│                                                          ││             │
 			│                                                          ││             │
+			│                                                          ││             │
 			╰──────────────────────────────────────────────────────────╯│             │
 			╭commits───────────────────────────────────────────────────╮│             │
+			│                                                          ││             │
 			│                                                          ││             │
 			│                                                          ││             │
 			│                                                          ││             │
@@ -290,7 +290,7 @@ func TestGetWindowDimensions(t *testing.T) {
 				args.UserConfig.Gui.EnlargedSideViewLocation = "left"
 			},
 			expected: `
-			╭status──────────────────────────────╮╭main───────────────────────────────╮
+			╭files───────────────────────────────╮╭main───────────────────────────────╮
 			│                                    ││                                   │
 			│                                    ││                                   │
 			│                                    ││                                   │
@@ -322,7 +322,7 @@ func TestGetWindowDimensions(t *testing.T) {
 				args.UserConfig.Gui.EnlargedSideViewLocation = "top"
 			},
 			expected: `
-			╭status───────────────────────────────────────────────────────────────────╮
+			╭files────────────────────────────────────────────────────────────────────╮
 			│                                                                         │
 			│                                                                         │
 			│                                                                         │
@@ -354,8 +354,8 @@ func TestGetWindowDimensions(t *testing.T) {
 				args.Height = 6 // small height cos we only care about the bottom line
 			},
 			expected: `
-			<status─────────────────>╭main────────────────────────────────────────────╮
-			<files──────────────────>│                                                │
+			╭files──────────────────╮╭main────────────────────────────────────────────╮
+			╰───────────────────────╯│                                                │
 			<branches───────────────>│                                                │
 			<commits────────────────>│                                                │
 			<stash──────────────────>╰────────────────────────────────────────────────╯
@@ -371,8 +371,8 @@ func TestGetWindowDimensions(t *testing.T) {
 			},
 			// We expect single-character spacers between the windows of the bottom line
 			expected: `
-			<status─────────────────>╭main────────────────────────────────────────────╮
-			<files──────────────────>│                                                │
+			╭files──────────────────╮╭main────────────────────────────────────────────╮
+			╰───────────────────────╯│                                                │
 			<branches───────────────>│                                                │
 			<commits────────────────>│                                                │
 			<stash──────────────────>╰────────────────────────────────────────────────╯
@@ -393,8 +393,8 @@ func TestGetWindowDimensions(t *testing.T) {
 			// We expect a spacer on the left of the bottom line so that the information
 			// window is right-aligned
 			expected: `
-			<status─────────────────>╭main────────────────────────────────────────────╮
-			<files──────────────────>│                                                │
+			╭files──────────────────╮╭main────────────────────────────────────────────╮
+			╰───────────────────────╯│                                                │
 			<branches───────────────>│                                                │
 			<commits────────────────>│                                                │
 			<stash──────────────────>╰────────────────────────────────────────────────╯
@@ -413,8 +413,8 @@ func TestGetWindowDimensions(t *testing.T) {
 			},
 			// We expect the app status window to take up all the available space
 			expected: `
-			<status─────────────────>╭main────────────────────────────────────────────╮
-			<files──────────────────>│                                                │
+			╭files──────────────────╮╭main────────────────────────────────────────────╮
+			╰───────────────────────╯│                                                │
 			<branches───────────────>│                                                │
 			<commits────────────────>│                                                │
 			<stash──────────────────>╰────────────────────────────────────────────────╯
@@ -430,8 +430,8 @@ func TestGetWindowDimensions(t *testing.T) {
 				args.AppStatus = "Rebasing /"
 			},
 			expected: `
-			<status─────────────────>╭main────────────────────────────────────────────╮
-			<files──────────────────>│                                                │
+			╭files──────────────────╮╭main────────────────────────────────────────────╮
+			╰───────────────────────╯│                                                │
 			<branches───────────────>│                                                │
 			<commits────────────────>│                                                │
 			<stash──────────────────>╰────────────────────────────────────────────────╯
@@ -452,8 +452,8 @@ func TestGetWindowDimensions(t *testing.T) {
 				args.InformationStr = "Showing output for: git diff deadbeef fa1afe1 -- (Reset)"
 			},
 			expected: `
-			<status───────────>╭main──────────────────────────────╮
-			<files────────────>│                                  │
+			╭files────────────╮╭main──────────────────────────────╮
+			╰─────────────────╯│                                  │
 			<branches─────────>│                                  │
 			<commits──────────>│                                  │
 			<stash────────────>╰──────────────────────────────────╯

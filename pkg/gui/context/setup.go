@@ -107,11 +107,12 @@ func NewContextTree(c *ContextCommon) *ContextTree {
 		),
 		CommandLog: NewSimpleContext(
 			NewBaseContext(NewBaseContextOpts{
-				Kind:       types.EXTRAS_CONTEXT,
-				View:       c.Views().Extras,
-				WindowName: "extras",
-				Key:        COMMAND_LOG_CONTEXT_KEY,
-				Focusable:  true,
+				Kind:                  types.PERSISTENT_POPUP,
+				View:                  c.Views().Extras,
+				WindowName:            "extras",
+				Key:                   COMMAND_LOG_CONTEXT_KEY,
+				Focusable:             true,
+				HasUncontrolledBounds: true,
 			}),
 		),
 		Snake: NewSimpleContext(

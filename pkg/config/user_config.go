@@ -484,6 +484,7 @@ type KeybindingUniversalConfig struct {
 	OpenRecentRepos                   string   `yaml:"openRecentRepos"`
 	SubmitEditorText                  string   `yaml:"submitEditorText"`
 	ExtrasMenu                        string   `yaml:"extrasMenu"`
+	ToggleCommandLog                  string   `yaml:"toggleCommandLog"`
 	ToggleWhitespaceInDiffView        string   `yaml:"toggleWhitespaceInDiffView"`
 	IncreaseContextInDiffView         string   `yaml:"increaseContextInDiffView"`
 	DecreaseContextInDiffView         string   `yaml:"decreaseContextInDiffView"`
@@ -947,6 +948,7 @@ func GetDefaultConfig() *UserConfig {
 				CopyToClipboard:                   "<c-o>",
 				SubmitEditorText:                  "<enter>",
 				ExtrasMenu:                        "@",
+				ToggleCommandLog:                  "L",
 				ToggleWhitespaceInDiffView:        "<c-w>",
 				IncreaseContextInDiffView:         "}",
 				DecreaseContextInDiffView:         "{",

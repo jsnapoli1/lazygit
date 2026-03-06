@@ -751,6 +751,7 @@ type TranslationSet struct {
 	ErrWorktreeMovedOrRemoved                string
 	CommandLog                               string
 	ToggleShowCommandLog                     string
+	ToggleCommandLogPopup                    string
 	FocusCommandLog                          string
 	CommandLogHeader                         string
 	RandomTip                                string
@@ -1858,6 +1859,7 @@ func EnglishTranslationSet() *TranslationSet {
 		CommandLog:                               "Command log",
 		ErrWorktreeMovedOrRemoved:                "Cannot find worktree. It might have been moved or removed ¯\\_(ツ)_/¯",
 		ToggleShowCommandLog:                     "Toggle show/hide command log",
+		ToggleCommandLogPopup:                    "Toggle command log",
 		FocusCommandLog:                          "Focus command log",
 		CommandLogHeader:                         "You can hide/focus this panel by pressing '%s'\n",
 		RandomTip:                                "Random tip",

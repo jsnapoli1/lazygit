@@ -461,10 +461,8 @@ func (gui *Gui) onUserConfigLoaded() error {
 
 	gui.g.Mouse = userConfig.Gui.MouseEvents
 
-	// originally we could only hide the command log permanently via the config
-	// but now we do it via state. So we need to still support the config for the
-	// sake of backwards compatibility. We're making use of short circuiting here
-	gui.ShowExtrasWindow = userConfig.Gui.ShowCommandLog && !gui.c.GetAppState().HideCommandLog
+	// The extras window (command log) is now hidden by default and opened as a popup via 'L'
+	gui.ShowExtrasWindow = false
 
 	authors.SetCustomAuthors(userConfig.Gui.AuthorColors)
 	if userConfig.Gui.NerdFontsVersion != "" {

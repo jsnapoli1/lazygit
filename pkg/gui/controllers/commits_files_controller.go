@@ -75,12 +75,11 @@ func (self *CommitFilesController) GetKeybindings(opts types.KeybindingsOpts) []
 			Tooltip:           self.c.Tr.OpenFileTooltip,
 		},
 		{
-			Key:               opts.GetKey(opts.Config.Universal.Edit),
-			Handler:           self.withItems(self.edit),
-			GetDisabledReason: self.require(self.itemsSelected(self.canEditFiles)),
-			Description:       self.c.Tr.Edit,
-			Tooltip:           self.c.Tr.EditFileTooltip,
-			DisplayOnScreen:   true,
+			Key:             opts.GetKey(opts.Config.Universal.Edit),
+			Handler:         self.openFileBrowser,
+			Description:     self.c.Tr.OpenFileBrowser,
+			Tooltip:         self.c.Tr.OpenFileBrowserTooltip,
+			DisplayOnScreen: true,
 		},
 		{
 			Key:               opts.GetKey(opts.Config.Universal.OpenDiffTool),
@@ -351,22 +350,8 @@ func (self *CommitFilesController) open(node *filetree.CommitFileNode) error {
 	return self.c.Helpers().Files.OpenFile(node.GetPath())
 }
 
-func (self *CommitFilesController) edit(nodes []*filetree.CommitFileNode) error {
-	return self.c.Helpers().Files.EditFiles(lo.FilterMap(nodes,
-		func(node *filetree.CommitFileNode, _ int) (string, bool) {
-			return node.GetPath(), node.IsFile()
-		}))
-}
-
-func (self *CommitFilesController) canEditFiles(nodes []*filetree.CommitFileNode) *types.DisabledReason {
-	if lo.NoneBy(nodes, func(node *filetree.CommitFileNode) bool { return node.IsFile() }) {
-		return &types.DisabledReason{
-			Text:             self.c.Tr.ErrCannotEditDirectory,
-			ShowErrorInPanel: true,
-		}
-	}
-
-	return nil
+func (self *CommitFilesController) openFileBrowser() error {
+	return self.c.Helpers().FileBrowser.OpenFileBrowser()
 }
 
 func (self *CommitFilesController) openDiffTool(node *filetree.CommitFileNode) error {

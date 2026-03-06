@@ -85,7 +85,8 @@ func (gui *Gui) createAllViews() error {
 		}
 	}
 
-	gui.Views.Options.Frame = false
+	gui.Views.Options.Frame = true
+	gui.Views.Options.Title = gui.c.Tr.OptionsTitle
 
 	gui.Views.SearchPrefix.BgColor = gocui.ColorDefault
 	gui.Views.SearchPrefix.FgColor = gocui.ColorCyan

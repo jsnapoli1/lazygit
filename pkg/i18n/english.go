@@ -17,6 +17,7 @@ type TranslationSet struct {
 	BranchesTitle                         string
 	CommitsTitle                          string
 	StashTitle                            string
+	OptionsTitle                          string
 	SnakeTitle                            string
 	EasterEgg                             string
 	UnstagedChanges                       string
@@ -1120,6 +1121,7 @@ func EnglishTranslationSet() *TranslationSet {
 		BranchesTitle:                        "Branches",
 		CommitsTitle:                         "Commits",
 		StashTitle:                           "Stash",
+		OptionsTitle:                         "Keybindings",
 		SnakeTitle:                           "Snake",
 		EasterEgg:                            "Easter egg",
 		UnstagedChanges:                      "Unstaged changes",

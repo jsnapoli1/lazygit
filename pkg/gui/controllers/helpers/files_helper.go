@@ -1,9 +1,7 @@
 package helpers
 
 import (
-	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/samber/lo"
 )
@@ -82,38 +80,4 @@ func (self *FilesHelper) OpenFile(filename string) error {
 		return err
 	}
 	return nil
-}
-
-func (self *FilesHelper) OpenYazi() error {
-	// Create a temp file for yazi to write the selected path to
-	tmpFile, err := os.CreateTemp("", "lazygit-yazi-*.txt")
-	if err != nil {
-		return err
-	}
-	chooserFile := tmpFile.Name()
-	tmpFile.Close()
-	defer os.Remove(chooserFile)
-
-	// Run yazi with --chooser-file option
-	cmdStr := "yazi --chooser-file " + chooserFile
-	if err := self.c.RunSubprocessAndRefresh(
-		self.c.OS().Cmd.NewShell(cmdStr, self.c.UserConfig().OS.ShellFunctionsFile),
-	); err != nil {
-		return err
-	}
-
-	// Read the selected file path from the temp file
-	content, err := os.ReadFile(chooserFile)
-	if err != nil {
-		// No file selected (user pressed q to quit)
-		return nil
-	}
-
-	selectedPath := strings.TrimSpace(string(content))
-	if selectedPath == "" {
-		return nil
-	}
-
-	// Open the selected file in the editor
-	return self.EditFiles([]string{selectedPath})
 }

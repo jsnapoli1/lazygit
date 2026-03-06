@@ -519,7 +519,7 @@ type KeybindingFilesConfig struct {
 	CopyFileInfoToClipboard  string `yaml:"copyFileInfoToClipboard"`
 	CollapseAll              string `yaml:"collapseAll"`
 	ExpandAll                string `yaml:"expandAll"`
-	OpenYazi                 string `yaml:"openYazi"`
+	OpenFileBrowser          string `yaml:"openFileBrowser"`
 }
 
 type KeybindingBranchesConfig struct {
@@ -982,7 +982,7 @@ func GetDefaultConfig() *UserConfig {
 				CopyFileInfoToClipboard:  "y",
 				CollapseAll:              "-",
 				ExpandAll:                "=",
-				OpenYazi:                 "<c-y>",
+				OpenFileBrowser:          "<c-y>",
 			},
 			Branches: KeybindingBranchesConfig{
 				CopyPullRequestURL:     "<c-y>",

@@ -21,6 +21,7 @@ type Helpers struct {
 	Bisect         *BisectHelper
 	Suggestions    *SuggestionsHelper
 	Files          *FilesHelper
+	FileBrowser    *FileBrowserHelper
 	WorkingTree    *WorkingTreeHelper
 	BranchesHelper *BranchesHelper
 	Tags           *TagsHelper
@@ -61,6 +62,7 @@ func NewStubHelpers() *Helpers {
 		Bisect:            &BisectHelper{},
 		Suggestions:       &SuggestionsHelper{},
 		Files:             &FilesHelper{},
+		FileBrowser:       &FileBrowserHelper{},
 		WorkingTree:       &WorkingTreeHelper{},
 		Tags:              &TagsHelper{},
 		MergeAndRebase:    &MergeAndRebaseHelper{},

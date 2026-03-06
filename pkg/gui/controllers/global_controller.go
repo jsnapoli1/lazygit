@@ -152,7 +152,16 @@ func (self *GlobalController) GetKeybindings(opts types.KeybindingsOpts) []*type
 			Description: self.c.Tr.ToggleWhitespaceInDiffView,
 			Tooltip:     self.c.Tr.ToggleWhitespaceInDiffViewTooltip,
 		},
+		{
+			Key:         opts.GetKey(opts.Config.Universal.CheckForUpdate),
+			Handler:     self.checkForUpdate,
+			Description: self.c.Tr.CheckForUpdate,
+		},
 	}
+}
+
+func (self *GlobalController) checkForUpdate() error {
+	return self.c.Helpers().Update.CheckForUpdateInForeground()
 }
 
 func (self *GlobalController) Context() types.Context {

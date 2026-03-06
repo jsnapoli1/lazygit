@@ -486,6 +486,7 @@ type KeybindingUniversalConfig struct {
 	ExtrasMenu                        string   `yaml:"extrasMenu"`
 	ToggleCommandLog                  string   `yaml:"toggleCommandLog"`
 	ToggleWhitespaceInDiffView        string   `yaml:"toggleWhitespaceInDiffView"`
+	CheckForUpdate                    string   `yaml:"checkForUpdate"`
 	IncreaseContextInDiffView         string   `yaml:"increaseContextInDiffView"`
 	DecreaseContextInDiffView         string   `yaml:"decreaseContextInDiffView"`
 	IncreaseRenameSimilarityThreshold string   `yaml:"increaseRenameSimilarityThreshold"`
@@ -494,7 +495,6 @@ type KeybindingUniversalConfig struct {
 }
 
 type KeybindingStatusConfig struct {
-	CheckForUpdate      string `yaml:"checkForUpdate"`
 	RecentRepos         string `yaml:"recentRepos"`
 	AllBranchesLogGraph string `yaml:"allBranchesLogGraph"`
 }
@@ -955,9 +955,9 @@ func GetDefaultConfig() *UserConfig {
 				IncreaseRenameSimilarityThreshold: ")",
 				DecreaseRenameSimilarityThreshold: "(",
 				OpenDiffTool:                      "<c-t>",
+				CheckForUpdate:                    "u",
 			},
 			Status: KeybindingStatusConfig{
-				CheckForUpdate:      "u",
 				RecentRepos:         "<enter>",
 				AllBranchesLogGraph: "a",
 			},

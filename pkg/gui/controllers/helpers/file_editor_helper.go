@@ -15,35 +15,36 @@ func NewFileEditorHelper(c *HelperCommon) *FileEditorHelper {
 }
 
 func (self *FileEditorHelper) OpenFileEditor(filePath string) error {
-	// Show the editor view
-	self.showEditorView()
-
 	// Open the file in the editor context
 	if err := self.c.Contexts().FileEditor.OpenFile(filePath); err != nil {
 		return err
 	}
+
+	// Resize and show the editor view
+	self.ResizeEditorView()
 
 	// Push the editor context
 	self.c.Context().Push(self.c.Contexts().FileEditor, types.OnFocusOpts{})
 	return nil
 }
 
-func (self *FileEditorHelper) showEditorView() {
-	// Calculate dimensions for the floating editor
+func (self *FileEditorHelper) ResizeEditorView() {
+	// Calculate dimensions for the floating editor as a centered popup
 	width, height := self.c.GocuiGui().Size()
 
-	// Leave margin around the popup
-	margin := 2
-	popupWidth := width - margin*2
-	popupHeight := height - margin*2
+	// Use 80% of the screen for the editor
+	panelWidth := width * 4 / 5
+	panelHeight := height * 4 / 5
 
-	x0 := margin
-	y0 := margin
-	x1 := x0 + popupWidth
-	y1 := y0 + popupHeight
+	// Center the popup
+	x0 := (width - panelWidth) / 2
+	y0 := (height - panelHeight) / 2
+	x1 := x0 + panelWidth
+	y1 := y0 + panelHeight
 
 	view := self.c.Views().FileEditor
 	view.Visible = true
 	view.Frame = true
 	_, _ = self.c.GocuiGui().SetView(view.Name(), x0, y0, x1, y1, 0)
+	_, _ = self.c.GocuiGui().SetViewOnTop(view.Name())
 }

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/jesseduffield/gocui"
 	"github.com/jesseduffield/lazygit/pkg/gui/context"
 	"github.com/jesseduffield/lazygit/pkg/gui/types"
 )
@@ -20,20 +21,21 @@ func NewFileEditorController(c *ControllerCommon) *FileEditorController {
 }
 
 func (self *FileEditorController) GetKeybindings(opts types.KeybindingsOpts) []*types.Binding {
+	// Use Ctrl+S to save and Ctrl+Q to quit (don't intercept Esc/Enter which vi needs)
 	return []*types.Binding{
 		{
-			Key:         opts.GetKey(opts.Config.Universal.Return),
+			Key:         gocui.KeyCtrlQ,
 			Handler:     self.close,
-			Description: self.c.Tr.Cancel,
+			Description: "Close without saving",
 		},
 		{
-			Key:         opts.GetKey(opts.Config.Universal.Confirm),
+			Key:         gocui.KeyCtrlS,
 			Handler:     self.save,
-			Description: "Save",
+			Description: "Save and close",
 		},
 		{
-			Key:         opts.GetKey(opts.Config.Universal.ConfirmMenu),
-			Handler:     self.save,
+			Key:         gocui.KeyCtrlW,
+			Handler:     self.saveOnly,
 			Description: "Save",
 		},
 	}
@@ -57,6 +59,14 @@ func (self *FileEditorController) save() error {
 		return err
 	}
 	self.c.Context().Pop()
+	self.c.Toast("File saved")
+	return nil
+}
+
+func (self *FileEditorController) saveOnly() error {
+	if err := self.context().SaveFile(); err != nil {
+		return err
+	}
 	self.c.Toast("File saved")
 	return nil
 }

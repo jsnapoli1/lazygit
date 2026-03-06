@@ -148,6 +148,9 @@ type Gui struct {
 	integrationTest integrationTypes.IntegrationTest
 
 	afterLayoutFuncs chan func() error
+
+	// viEditor handles vi-style editing for the file editor
+	viEditor *ViEditor
 }
 
 type StateAccessor struct {

@@ -178,7 +178,7 @@ func (gui *Gui) createAllViews() error {
 	// File editor
 	gui.Views.FileEditor.Visible = false
 	gui.Views.FileEditor.Editable = true
-	gui.Views.FileEditor.Wrap = true
+	gui.Views.FileEditor.Wrap = false // Don't wrap - TextArea cursor doesn't account for view wrapping
 	gui.Views.FileEditor.Editor = gocui.EditorFunc(gui.fileEditorKeypress)
 
 	return nil

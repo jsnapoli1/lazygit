@@ -242,6 +242,10 @@ func (self *GlobalController) quitWithoutChangingDirectory() error {
 }
 
 func (self *GlobalController) escape() error {
+	// FileEditor has its own vi-style escape handling - let the editor handle it
+	if self.c.Context().Current().GetKey() == "fileEditor" {
+		return gocui.ErrKeybindingNotHandled
+	}
 	return (&QuitActions{c: self.c}).Escape()
 }
 
@@ -252,6 +256,12 @@ func (self *GlobalController) escapeDescription() string {
 func (self *GlobalController) escapeEnabled() *types.DisabledReason {
 	if (&QuitActions{c: self.c}).EscapeEnabled() {
 		return nil
+	}
+
+	// For FileEditor, allow further dispatching so the vi editor can handle Escape
+	currentContext := self.c.Context().Current()
+	if currentContext.GetKey() == "fileEditor" {
+		return &types.DisabledReason{Text: "", AllowFurtherDispatching: true}
 	}
 
 	// The empty error text is intentional. We don't want to show an error

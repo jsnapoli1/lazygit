@@ -305,6 +305,10 @@ type TranslationSet struct {
 	ToggleSelectionForPatch               string
 	EditHunk                              string
 	EditHunkTooltip                       string
+	ToggleDiffDisplayMode                 string
+	ToggleDiffDisplayModeTooltip          string
+	DiffDisplayModeSuccinct               string
+	DiffDisplayModeClean                  string
 	ToggleStagingView                     string
 	ToggleStagingViewTooltip              string
 	ReturnToFilesPanel                    string
@@ -1414,6 +1418,10 @@ func EnglishTranslationSet() *TranslationSet {
 		ToggleSelectionForPatch:              `Toggle lines in patch`,
 		EditHunk:                             `Edit hunk`,
 		EditHunkTooltip:                      "Edit selected hunk in external editor.",
+		ToggleDiffDisplayMode:                "Toggle diff display mode",
+		ToggleDiffDisplayModeTooltip:         "Toggle between succinct and full diff display modes. Succinct mode shows snippets with line numbers.",
+		DiffDisplayModeSuccinct:              "Succinct diff",
+		DiffDisplayModeClean:                 "Full diff",
 		ToggleStagingView:                    "Switch view",
 		ToggleStagingViewTooltip:             "Switch to other view (staged/unstaged changes).",
 		ReturnToFilesPanel:                   `Return to files panel`,

@@ -292,6 +292,8 @@ type GitConfig struct {
 	AllBranchesLogCmds []string `yaml:"allBranchesLogCmds"`
 	// If true, git diffs are rendered with the `--ignore-all-space` flag, which ignores whitespace changes. Can be toggled from within Lazygit with `<c-w>`.
 	IgnoreWhitespaceInDiffView bool `yaml:"ignoreWhitespaceInDiffView"`
+	// If true, display diffs in succinct format showing only snippets with line numbers. Can be toggled from within Lazygit with `~`.
+	SuccinctDiffMode bool `yaml:"-"` // Not persisted to config file
 	// The number of lines of context to show around each diff hunk. Can be changed from within Lazygit with the `{` and `}` keys.
 	DiffContextSize uint64 `yaml:"diffContextSize"`
 	// The threshold for considering a file to be renamed, in percent. Can be changed from within Lazygit with the `(` and `)` keys.
@@ -592,9 +594,10 @@ type KeybindingCommitFilesConfig struct {
 }
 
 type KeybindingMainConfig struct {
-	ToggleSelectHunk string `yaml:"toggleSelectHunk"`
-	PickBothHunks    string `yaml:"pickBothHunks"`
-	EditSelectHunk   string `yaml:"editSelectHunk"`
+	ToggleSelectHunk      string `yaml:"toggleSelectHunk"`
+	PickBothHunks         string `yaml:"pickBothHunks"`
+	EditSelectHunk        string `yaml:"editSelectHunk"`
+	ToggleDiffDisplayMode string `yaml:"toggleDiffDisplayMode"`
 }
 
 type KeybindingSubmodulesConfig struct {
@@ -1048,9 +1051,10 @@ func GetDefaultConfig() *UserConfig {
 				CheckoutCommitFile: "c",
 			},
 			Main: KeybindingMainConfig{
-				ToggleSelectHunk: "a",
-				PickBothHunks:    "b",
-				EditSelectHunk:   "E",
+				ToggleSelectHunk:      "a",
+				PickBothHunks:         "b",
+				EditSelectHunk:        "E",
+				ToggleDiffDisplayMode: "~",
 			},
 			Submodules: KeybindingSubmodulesConfig{
 				Init:     "i",

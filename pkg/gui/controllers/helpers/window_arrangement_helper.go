@@ -197,8 +197,8 @@ func getVerticalSectionWeights(args WindowArrangementArgs) (int, int) {
 	if args.ScreenMode == types.SCREEN_HALF && args.CurrentSideWindow == "commits" {
 		return 1, 2
 	}
-	// Default: equal weights
-	return 1, 1
+	// Default: top section gets 2x the height of commits section
+	return 2, 1
 }
 
 func mainPanelChildren(args WindowArrangementArgs) []*boxlayout.Box {

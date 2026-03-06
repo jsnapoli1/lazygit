@@ -71,6 +71,11 @@ func (gui *Gui) orderedViewNameMappings() []viewNameMapping {
 		{viewPtr: &gui.Views.Prompt, name: "prompt"},
 		{viewPtr: &gui.Views.Tooltip, name: "tooltip"},
 
+		// File browser (miller columns)
+		{viewPtr: &gui.Views.FileBrowserLeft, name: "fileBrowserLeft"},
+		{viewPtr: &gui.Views.FileBrowserMiddle, name: "fileBrowserMiddle"},
+		{viewPtr: &gui.Views.FileBrowserRight, name: "fileBrowserRight"},
+
 		// this guy will cover everything else when it appears
 		{viewPtr: &gui.Views.Limit, name: "limit"},
 	}
@@ -152,6 +157,20 @@ func (gui *Gui) createAllViews() error {
 	gui.Views.Extras.AutoRenderHyperLinks = true
 
 	gui.Views.Snake.FgColor = gocui.ColorGreen
+
+	// File browser views
+	gui.Views.FileBrowserLeft.Visible = false
+	gui.Views.FileBrowserLeft.Highlight = true
+	gui.Views.FileBrowserLeft.SelBgColor = gocui.ColorBlue
+	gui.Views.FileBrowserLeft.SelFgColor = gocui.ColorWhite
+
+	gui.Views.FileBrowserMiddle.Visible = false
+	gui.Views.FileBrowserMiddle.Highlight = true
+	gui.Views.FileBrowserMiddle.SelBgColor = gocui.ColorBlue
+	gui.Views.FileBrowserMiddle.SelFgColor = gocui.ColorWhite
+
+	gui.Views.FileBrowserRight.Visible = false
+	gui.Views.FileBrowserRight.Wrap = true
 
 	return nil
 }

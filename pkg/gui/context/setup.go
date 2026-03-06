@@ -131,5 +131,6 @@ func NewContextTree(c *ContextCommon) *ContextTree {
 		Limit:         NewDisplayContext(LIMIT_CONTEXT_KEY, c.Views().Limit, "limit"),
 		StatusSpacer1: NewDisplayContext(STATUS_SPACER1_CONTEXT_KEY, c.Views().StatusSpacer1, "statusSpacer1"),
 		StatusSpacer2: NewDisplayContext(STATUS_SPACER2_CONTEXT_KEY, c.Views().StatusSpacer2, "statusSpacer2"),
+		FileBrowser:   NewFileBrowserContext(c),
 	}
 }

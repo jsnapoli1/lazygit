@@ -48,6 +48,7 @@ const (
 	SUBMODULES_CONTEXT_KEY         types.ContextKey = "submodules"
 	SUGGESTIONS_CONTEXT_KEY        types.ContextKey = "suggestions"
 	COMMAND_LOG_CONTEXT_KEY        types.ContextKey = "cmdLog"
+	FILE_BROWSER_CONTEXT_KEY       types.ContextKey = "fileBrowser"
 )
 
 var AllContextKeys = []types.ContextKey{
@@ -122,6 +123,9 @@ type ContextTree struct {
 	Limit         types.Context
 	StatusSpacer1 types.Context
 	StatusSpacer2 types.Context
+
+	// File browser (miller columns)
+	FileBrowser *FileBrowserContext
 }
 
 // the order of this decides which context is initially at the top of its window
@@ -166,6 +170,7 @@ func (self *ContextTree) Flatten() []types.Context {
 		self.Limit,
 		self.StatusSpacer1,
 		self.StatusSpacer2,
+		self.FileBrowser,
 	}
 }
 

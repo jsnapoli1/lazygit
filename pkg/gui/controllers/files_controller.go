@@ -104,6 +104,12 @@ func (self *FilesController) GetKeybindings(opts types.KeybindingsOpts) []*types
 			Tooltip:           self.c.Tr.OpenFileTooltip,
 		},
 		{
+			Key:         opts.GetKey(opts.Config.Files.OpenYazi),
+			Handler:     self.openYazi,
+			Description: self.c.Tr.OpenYazi,
+			Tooltip:     self.c.Tr.OpenYaziTooltip,
+		},
+		{
 			Key:               opts.GetKey(opts.Config.Files.IgnoreFile),
 			Handler:           self.withItem(self.ignoreOrExcludeMenu),
 			GetDisabledReason: self.require(self.singleItemSelected()),
@@ -944,6 +950,10 @@ func (self *FilesController) Open() error {
 	}
 
 	return self.c.Helpers().Files.OpenFile(node.GetPath())
+}
+
+func (self *FilesController) openYazi() error {
+	return self.c.Helpers().Files.OpenYazi()
 }
 
 func (self *FilesController) openDiffTool(node *filetree.FileNode) error {

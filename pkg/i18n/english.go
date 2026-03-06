@@ -261,6 +261,8 @@ type TranslationSet struct {
 	EditFileTooltip                       string
 	OpenFile                              string
 	OpenFileTooltip                       string
+	OpenYazi                              string
+	OpenYaziTooltip                       string
 	OpenInEditor                          string
 	IgnoreFile                            string
 	ExcludeFile                           string
@@ -1365,6 +1367,8 @@ func EnglishTranslationSet() *TranslationSet {
 		EditFileTooltip:                      "Open file in external editor.",
 		OpenFile:                             `Open file`,
 		OpenFileTooltip:                      "Open file in default application.",
+		OpenYazi:                             `Open yazi`,
+		OpenYaziTooltip:                      "Open yazi file manager to browse and select files.",
 		OpenInEditor:                         "Open in editor",
 		IgnoreFile:                           `Add to .gitignore`,
 		ExcludeFile:                          `Add to .git/info/exclude`,

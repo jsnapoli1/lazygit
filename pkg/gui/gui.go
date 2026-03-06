@@ -808,6 +808,10 @@ func (gui *Gui) viewTabMap() map[string][]context.TabView {
 				Tab:      gui.c.Tr.ReflogCommitsTitle,
 				ViewName: "reflogCommits",
 			},
+			{
+				Tab:      gui.c.Tr.StashTitle,
+				ViewName: "stash",
+			},
 		},
 		"files": {
 			{

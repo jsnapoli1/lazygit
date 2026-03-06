@@ -402,22 +402,6 @@ func getExtrasWindowSize(args WindowArrangementArgs) int {
 	return baseSize + frameSize
 }
 
-// The stash window by default only contains one line so that it's not hogging
-// too much space, but if you access it it should take up some space. This is
-// the default behaviour when accordion mode is NOT in effect. If it is in effect
-// then when it's accessed it will have weight 2, not 1.
-func getDefaultStashWindowBox(args WindowArrangementArgs) *boxlayout.Box {
-	box := &boxlayout.Box{Window: "stash"}
-	// if the stash window is anywhere in our stack we should enlargen it
-	if args.CurrentSideWindow == "stash" {
-		box.Weight = 1
-	} else {
-		box.Size = 3
-	}
-
-	return box
-}
-
 func sidePanelChildren(args WindowArrangementArgs) func(width int, height int) []*boxlayout.Box {
 	return func(width int, height int) []*boxlayout.Box {
 		if args.ScreenMode == types.SCREEN_FULL || args.ScreenMode == types.SCREEN_HALF {
@@ -439,7 +423,6 @@ func sidePanelChildren(args WindowArrangementArgs) func(width int, height int) [
 				fullHeightBox("files"),
 				fullHeightBox("branches"),
 				fullHeightBox("commits"),
-				fullHeightBox("stash"),
 			}
 		} else if height >= 28 {
 			accordionMode := args.UserConfig.Gui.ExpandFocusedSidePanel
@@ -458,7 +441,6 @@ func sidePanelChildren(args WindowArrangementArgs) func(width int, height int) [
 				accordionBox(&boxlayout.Box{Window: "files", Weight: 1}),
 				accordionBox(&boxlayout.Box{Window: "branches", Weight: 1}),
 				accordionBox(&boxlayout.Box{Window: "commits", Weight: 1}),
-				accordionBox(getDefaultStashWindowBox(args)),
 			}
 		}
 
@@ -485,7 +467,6 @@ func sidePanelChildren(args WindowArrangementArgs) func(width int, height int) [
 			squashedSidePanelBox("files"),
 			squashedSidePanelBox("branches"),
 			squashedSidePanelBox("commits"),
-			squashedSidePanelBox("stash"),
 		}
 	}
 }

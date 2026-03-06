@@ -89,12 +89,11 @@ func (self *FilesController) GetKeybindings(opts types.KeybindingsOpts) []*types
 			Tooltip:     self.c.Tr.FindBaseCommitForFixupTooltip,
 		},
 		{
-			Key:               opts.GetKey(opts.Config.Universal.Edit),
-			Handler:           self.withItems(self.edit),
-			GetDisabledReason: self.require(self.withFileTreeViewModelMutex(self.itemsSelected(self.canEditFiles))),
-			Description:       self.c.Tr.Edit,
-			Tooltip:           self.c.Tr.EditFileTooltip,
-			DisplayOnScreen:   true,
+			Key:             opts.GetKey(opts.Config.Universal.Edit),
+			Handler:         self.openFileBrowser,
+			Description:     self.c.Tr.OpenFileBrowser,
+			Tooltip:         self.c.Tr.OpenFileBrowserTooltip,
+			DisplayOnScreen: true,
 		},
 		{
 			Key:               opts.GetKey(opts.Config.Universal.OpenFile),
@@ -925,23 +924,6 @@ func (self *FilesController) setStatusFiltering(filter filetree.FileTreeDisplayF
 	return nil
 }
 
-func (self *FilesController) edit(nodes []*filetree.FileNode) error {
-	return self.c.Helpers().Files.EditFiles(lo.FilterMap(nodes,
-		func(node *filetree.FileNode, _ int) (string, bool) {
-			return node.GetPath(), node.IsFile()
-		}))
-}
-
-func (self *FilesController) canEditFiles(nodes []*filetree.FileNode) *types.DisabledReason {
-	if lo.NoneBy(nodes, func(node *filetree.FileNode) bool { return node.IsFile() }) {
-		return &types.DisabledReason{
-			Text:             self.c.Tr.ErrCannotEditDirectory,
-			ShowErrorInPanel: true,
-		}
-	}
-
-	return nil
-}
 
 func (self *FilesController) Open() error {
 	node := self.context().GetSelected()

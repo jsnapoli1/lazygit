@@ -49,4 +49,7 @@ type Views struct {
 	FileBrowserLeft   *gocui.View
 	FileBrowserMiddle *gocui.View
 	FileBrowserRight  *gocui.View
+
+	// File editor view
+	FileEditor *gocui.View
 }

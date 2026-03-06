@@ -101,6 +101,7 @@ func (gui *Gui) resetHelpersAndControllers() {
 		Suggestions:     suggestionsHelper,
 		Files:           filesHelper,
 		FileBrowser:     helpers.NewFileBrowserHelper(helperCommon, filesHelper),
+		FileEditor:      helpers.NewFileEditorHelper(helperCommon),
 		WorkingTree:     helpers.NewWorkingTreeHelper(helperCommon, refsHelper, commitsHelper, gpgHelper, rebaseHelper),
 		Tags:            helpers.NewTagsHelper(helperCommon, commitsHelper, gpgHelper),
 		BranchesHelper:  helpers.NewBranchesHelper(helperCommon, worktreeHelper),
@@ -381,6 +382,11 @@ func (gui *Gui) resetHelpersAndControllers() {
 	fileBrowserController := controllers.NewFileBrowserController(common)
 	controllers.AttachControllers(gui.State.Contexts.FileBrowser,
 		fileBrowserController,
+	)
+
+	fileEditorController := controllers.NewFileEditorController(common)
+	controllers.AttachControllers(gui.State.Contexts.FileEditor,
+		fileEditorController,
 	)
 
 	controllers.AttachControllers(gui.State.Contexts.CommitMessage,

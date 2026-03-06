@@ -940,10 +940,13 @@ func (self *FilesController) openFileBrowser() error {
 }
 
 func (self *FilesController) edit(nodes []*filetree.FileNode) error {
-	return self.c.Helpers().Files.EditFiles(lo.FilterMap(nodes,
-		func(node *filetree.FileNode, _ int) (string, bool) {
-			return node.GetPath(), node.IsFile()
-		}))
+	// Get the first file path
+	for _, node := range nodes {
+		if node.IsFile() {
+			return self.c.Helpers().FileEditor.OpenFileEditor(node.GetPath())
+		}
+	}
+	return nil
 }
 
 func (self *FilesController) openDiffTool(node *filetree.FileNode) error {

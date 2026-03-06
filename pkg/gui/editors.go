@@ -56,3 +56,9 @@ func (gui *Gui) searchEditor(v *gocui.View, key gocui.Key, ch rune, mod gocui.Mo
 
 	return matched
 }
+
+func (gui *Gui) fileEditorKeypress(v *gocui.View, key gocui.Key, ch rune, mod gocui.Modifier) bool {
+	matched := gui.handleEditorKeypress(v, key, ch, mod, true)
+	v.RenderTextArea()
+	return matched
+}

@@ -108,9 +108,15 @@ func (self *FileBrowserController) edit() error {
 		return nil
 	}
 
-	// Close the file browser and edit the file
+	// Check if it's a directory
+	entry := self.context().GetSelectedEntry()
+	if entry != nil && entry.IsDir {
+		return nil
+	}
+
+	// Close the file browser and open the file editor
 	self.c.Context().Pop()
-	return self.c.Helpers().Files.EditFiles([]string{path})
+	return self.c.Helpers().FileEditor.OpenFileEditor(path)
 }
 
 func (self *FileBrowserController) GetMouseKeybindings(opts types.KeybindingsOpts) []*gocui.ViewMouseBinding {

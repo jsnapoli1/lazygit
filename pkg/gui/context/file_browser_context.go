@@ -375,6 +375,14 @@ func (self *FileBrowserContext) GetSelectedPath() string {
 	return self.columns[col][self.selectedIdx[col]].Path
 }
 
+func (self *FileBrowserContext) GetSelectedEntry() *FileBrowserEntry {
+	col := self.activeColumn
+	if len(self.columns[col]) == 0 {
+		return nil
+	}
+	return &self.columns[col][self.selectedIdx[col]]
+}
+
 func (self *FileBrowserContext) HandleFocusLost(opts types.OnFocusLostOpts) {
 	// Hide the file browser views when losing focus
 	self.c.Views().FileBrowserLeft.Visible = false

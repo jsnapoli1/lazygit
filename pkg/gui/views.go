@@ -76,6 +76,9 @@ func (gui *Gui) orderedViewNameMappings() []viewNameMapping {
 		{viewPtr: &gui.Views.FileBrowserMiddle, name: "fileBrowserMiddle"},
 		{viewPtr: &gui.Views.FileBrowserRight, name: "fileBrowserRight"},
 
+		// File editor
+		{viewPtr: &gui.Views.FileEditor, name: "fileEditor"},
+
 		// this guy will cover everything else when it appears
 		{viewPtr: &gui.Views.Limit, name: "limit"},
 	}
@@ -171,6 +174,12 @@ func (gui *Gui) createAllViews() error {
 
 	gui.Views.FileBrowserRight.Visible = false
 	gui.Views.FileBrowserRight.Wrap = true
+
+	// File editor
+	gui.Views.FileEditor.Visible = false
+	gui.Views.FileEditor.Editable = true
+	gui.Views.FileEditor.Wrap = true
+	gui.Views.FileEditor.Editor = gocui.EditorFunc(gui.fileEditorKeypress)
 
 	return nil
 }

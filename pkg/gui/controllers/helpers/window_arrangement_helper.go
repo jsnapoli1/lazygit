@@ -1,7 +1,6 @@
 package helpers
 
 import (
-	"fmt"
 	mapsPkg "maps"
 	"math"
 
@@ -9,7 +8,6 @@ import (
 	"github.com/jesseduffield/lazygit/pkg/config"
 	"github.com/jesseduffield/lazygit/pkg/gui/types"
 	"github.com/jesseduffield/lazygit/pkg/utils"
-	"golang.org/x/exp/slices"
 )
 
 // In this file we use the boxlayout package, along with knowledge about the app's state,
@@ -127,52 +125,33 @@ func GetWindowDimensions(args WindowArrangementArgs) map[string]boxlayout.Dimens
 		sidePanelsDirection = boxlayout.ROW
 	}
 
-	// Info section only shows for app status or mode indicators now
-	// Options/keybinds moved next to commits panel
-	// Search prompt is now in the options section
-	showInfoSection := args.IsAnyModeActive || args.AppStatus != ""
-	infoSectionSize := 0
-	if showInfoSection {
-		infoSectionSize = 1
-	}
-
 	// Determine weights for top section (files/branches + main) vs bottom section (commits + options)
 	topSectionWeight, commitsSectionWeight := getVerticalSectionWeights(args)
 
 	root := &boxlayout.Box{
 		Direction: boxlayout.ROW,
+		Weight:    1,
 		Children: []*boxlayout.Box{
 			{
-				Direction: boxlayout.ROW,
-				Weight:    1,
+				Direction: sidePanelsDirection,
+				Weight:    topSectionWeight,
 				Children: []*boxlayout.Box{
 					{
-						Direction: sidePanelsDirection,
-						Weight:    topSectionWeight,
-						Children: []*boxlayout.Box{
-							{
-								Direction:           boxlayout.ROW,
-								Weight:              sideSectionWeight,
-								ConditionalChildren: sidePanelChildren(args),
-							},
-							{
-								Direction: boxlayout.ROW,
-								Weight:    mainSectionWeight,
-								Children:  mainPanelChildren(args),
-							},
-						},
+						Direction:           boxlayout.ROW,
+						Weight:              sideSectionWeight,
+						ConditionalChildren: sidePanelChildren(args),
 					},
 					{
-						Direction: boxlayout.COLUMN,
-						Weight:    commitsSectionWeight,
-						Children:  bottomSectionChildren(args),
+						Direction: boxlayout.ROW,
+						Weight:    mainSectionWeight,
+						Children:  mainPanelChildren(args),
 					},
 				},
 			},
 			{
 				Direction: boxlayout.COLUMN,
-				Size:      infoSectionSize,
-				Children:  infoSectionChildren(args),
+				Weight:    commitsSectionWeight,
+				Children:  bottomSectionChildren(args),
 			},
 		},
 	}
@@ -292,56 +271,6 @@ func getMidSectionWeights(args WindowArrangementArgs) (int, int) {
 	}
 
 	return sideSectionWeight, mainSectionWeight
-}
-
-func infoSectionChildren(args WindowArrangementArgs) []*boxlayout.Box {
-	// This section now only shows for app status or mode indicators
-	// Options/keybinds and search moved to the options section next to commits
-
-	statusSpacerPrefix := "statusSpacer"
-	spacerBoxIndex := 0
-	maxSpacerBoxIndex := 2 // See pkg/gui/types/views.go
-
-	// Returns a box with weight 1 to be used as flexible padding between views
-	flexibleSpacerBox := func() *boxlayout.Box {
-		spacerBoxIndex++
-
-		if spacerBoxIndex > maxSpacerBoxIndex {
-			panic("Too many spacer boxes")
-		}
-
-		return &boxlayout.Box{Window: fmt.Sprintf("%s%d", statusSpacerPrefix, spacerBoxIndex), Weight: 1}
-	}
-
-	var result []*boxlayout.Box
-
-	if !args.InDemo && args.AppStatus != "" {
-		result = append(result, &boxlayout.Box{Window: "appStatus", Size: utils.StringWidth(args.AppStatus)})
-	}
-
-	if args.IsAnyModeActive {
-		result = append(result,
-			&boxlayout.Box{
-				Window: "information",
-				Size:   utils.StringWidth(utils.Decolorise(args.InformationStr)),
-			})
-	}
-
-	// Add flexible spacer between status and information if both present
-	if len(result) == 2 {
-		result = slices.Insert(result, 1, flexibleSpacerBox())
-	} else if len(result) == 1 {
-		if result[0].Window == "information" {
-			// Right-align information
-			result = slices.Insert(result, 0, flexibleSpacerBox())
-		} else {
-			// Status fills the width
-			result[0].Size = 0
-			result[0].Weight = 1
-		}
-	}
-
-	return result
 }
 
 func splitMainPanelSideBySide(args WindowArrangementArgs) bool {

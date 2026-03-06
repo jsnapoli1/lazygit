@@ -352,94 +352,17 @@ func TestGetWindowDimensions(t *testing.T) {
 			`,
 		},
 		{
-			name: "app status present",
+			name: "small height",
 			mutateArgs: func(args *WindowArrangementArgs) {
-				args.AppStatus = "Rebasing /"
-				args.Height = 6 // small height cos we only care about the bottom line
+				args.Height = 6
 			},
 			expected: `
 			╭files──────────────────╮╭main────────────────────────────────────────────╮
+			│                       ││                                                │
 			╰───────────────────────╯│                                                │
 			<branches───────────────>╰────────────────────────────────────────────────╯
 			╭commits─────────────────────────────────────────╮╭options────────────────╮
 			╰────────────────────────────────────────────────╯╰───────────────────────╯
-			<appStatus────────────────────────────────────────────────────────────────>
-			`,
-		},
-		{
-			name: "information present without options",
-			mutateArgs: func(args *WindowArrangementArgs) {
-				args.Height = 6                            // small height cos we only care about the bottom line
-				args.UserConfig.Gui.ShowBottomLine = false // this hides the options window
-				args.IsAnyModeActive = true                // this means we show the bottom line despite the user config
-			},
-			// We expect a spacer on the left of the bottom line so that the information
-			// window is right-aligned
-			expected: `
-			╭files──────────────────╮╭main────────────────────────────────────────────╮
-			╰───────────────────────╯│                                                │
-			<branches───────────────>╰────────────────────────────────────────────────╯
-			╭commits─────────────────────────────────────────╮╭options────────────────╮
-			╰────────────────────────────────────────────────╯╰───────────────────────╯
-			<statusSpacer1─────────────────────────────────────────────────><A────────>
-			A: information
-			`,
-		},
-		{
-			name: "app status present without information or options",
-			mutateArgs: func(args *WindowArrangementArgs) {
-				args.Height = 6                            // small height cos we only care about the bottom line
-				args.UserConfig.Gui.ShowBottomLine = false // this hides the options window
-				args.IsAnyModeActive = false
-				args.AppStatus = "Rebasing /"
-			},
-			// We expect the app status window to take up all the available space
-			expected: `
-			╭files──────────────────╮╭main────────────────────────────────────────────╮
-			╰───────────────────────╯│                                                │
-			<branches───────────────>╰────────────────────────────────────────────────╯
-			╭commits─────────────────────────────────────────╮╭options────────────────╮
-			╰────────────────────────────────────────────────╯╰───────────────────────╯
-			<appStatus────────────────────────────────────────────────────────────────>
-			`,
-		},
-		{
-			name: "app status present with information but without options",
-			mutateArgs: func(args *WindowArrangementArgs) {
-				args.Height = 6                            // small height cos we only care about the bottom line
-				args.UserConfig.Gui.ShowBottomLine = false // this hides the options window
-				args.IsAnyModeActive = true
-				args.AppStatus = "Rebasing /"
-			},
-			expected: `
-			╭files──────────────────╮╭main────────────────────────────────────────────╮
-			╰───────────────────────╯│                                                │
-			<branches───────────────>╰────────────────────────────────────────────────╯
-			╭commits─────────────────────────────────────────╮╭options────────────────╮
-			╰────────────────────────────────────────────────╯╰───────────────────────╯
-			<A───────><statusSpacer1───────────────────────────────────────><B────────>
-			A: appStatus
-			B: information
-			`,
-		},
-		{
-			name: "app status present with very long information but without options",
-			mutateArgs: func(args *WindowArrangementArgs) {
-				args.Height = 6                            // small height cos we only care about the bottom line
-				args.Width = 55                            // smaller width so that not all bottom line views fit
-				args.UserConfig.Gui.ShowBottomLine = false // this hides the options window
-				args.IsAnyModeActive = true
-				args.AppStatus = "Rebasing /"
-				args.InformationStr = "Showing output for: git diff deadbeef fa1afe1 -- (Reset)"
-			},
-			expected: `
-			╭files────────────╮╭main──────────────────────────────╮
-			╰─────────────────╯│                                  │
-			<branches─────────>╰──────────────────────────────────╯
-			╭commits────────────────────────────╮╭options─────────╮
-			╰───────────────────────────────────╯╰────────────────╯
-			<A───────><information──────────────────────────────────────────>
-			A: appStatus
 			`,
 		},
 	}

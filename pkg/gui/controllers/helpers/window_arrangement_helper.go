@@ -4,7 +4,6 @@ import (
 	"fmt"
 	mapsPkg "maps"
 	"math"
-	"strings"
 
 	"github.com/jesseduffield/lazycore/pkg/boxlayout"
 	"github.com/jesseduffield/lazygit/pkg/config"
@@ -128,16 +127,16 @@ func GetWindowDimensions(args WindowArrangementArgs) map[string]boxlayout.Dimens
 		sidePanelsDirection = boxlayout.ROW
 	}
 
-	showInfoSection := args.UserConfig.Gui.ShowBottomLine ||
-		args.InSearchPrompt ||
-		args.IsAnyModeActive ||
-		args.AppStatus != ""
+	// Info section only shows for app status or mode indicators now
+	// Options/keybinds moved next to commits panel
+	// Search prompt is now in the options section
+	showInfoSection := args.IsAnyModeActive || args.AppStatus != ""
 	infoSectionSize := 0
 	if showInfoSection {
 		infoSectionSize = 1
 	}
 
-	// Determine weights for top section (files/branches + main) vs bottom section (commits)
+	// Determine weights for top section (files/branches + main) vs bottom section (commits + options)
 	topSectionWeight, commitsSectionWeight := getVerticalSectionWeights(args)
 
 	root := &boxlayout.Box{
@@ -164,9 +163,9 @@ func GetWindowDimensions(args WindowArrangementArgs) map[string]boxlayout.Dimens
 						},
 					},
 					{
-						Direction:           boxlayout.ROW,
-						Weight:              commitsSectionWeight,
-						ConditionalChildren: commitsPanelChildren(args),
+						Direction: boxlayout.COLUMN,
+						Weight:    commitsSectionWeight,
+						Children:  bottomSectionChildren(args),
 					},
 				},
 			},
@@ -296,32 +295,12 @@ func getMidSectionWeights(args WindowArrangementArgs) (int, int) {
 }
 
 func infoSectionChildren(args WindowArrangementArgs) []*boxlayout.Box {
-	if args.InSearchPrompt {
-		return []*boxlayout.Box{
-			{
-				Window: "searchPrefix",
-				Size:   utils.StringWidth(args.SearchPrefix),
-			},
-			{
-				Window: "search",
-				Weight: 1,
-			},
-		}
-	}
+	// This section now only shows for app status or mode indicators
+	// Options/keybinds and search moved to the options section next to commits
 
 	statusSpacerPrefix := "statusSpacer"
 	spacerBoxIndex := 0
 	maxSpacerBoxIndex := 2 // See pkg/gui/types/views.go
-	// Returns a box with size 1 to be used as padding between views
-	spacerBox := func() *boxlayout.Box {
-		spacerBoxIndex++
-
-		if spacerBoxIndex > maxSpacerBoxIndex {
-			panic("Too many spacer boxes")
-		}
-
-		return &boxlayout.Box{Window: fmt.Sprintf("%s%d", statusSpacerPrefix, spacerBoxIndex), Size: 1}
-	}
 
 	// Returns a box with weight 1 to be used as flexible padding between views
 	flexibleSpacerBox := func() *boxlayout.Box {
@@ -334,66 +313,32 @@ func infoSectionChildren(args WindowArrangementArgs) []*boxlayout.Box {
 		return &boxlayout.Box{Window: fmt.Sprintf("%s%d", statusSpacerPrefix, spacerBoxIndex), Weight: 1}
 	}
 
-	// Adds spacer boxes inbetween given boxes
-	insertSpacerBoxes := func(boxes []*boxlayout.Box) []*boxlayout.Box {
-		for i := len(boxes) - 1; i >= 1; i-- {
-			// ignore existing spacer boxes
-			if !strings.HasPrefix(boxes[i].Window, statusSpacerPrefix) {
-				boxes = slices.Insert(boxes, i, spacerBox())
-			}
-		}
-		return boxes
-	}
-
-	// First collect the real views that we want to show, we'll add spacers in
-	// between at the end
 	var result []*boxlayout.Box
 
-	if !args.InDemo {
-		// app status appears very briefly in demos and dislodges the caption,
-		// so better not to show it at all
-		if args.AppStatus != "" {
-			result = append(result, &boxlayout.Box{Window: "appStatus", Size: utils.StringWidth(args.AppStatus)})
-		}
+	if !args.InDemo && args.AppStatus != "" {
+		result = append(result, &boxlayout.Box{Window: "appStatus", Size: utils.StringWidth(args.AppStatus)})
 	}
 
-	if args.UserConfig.Gui.ShowBottomLine {
-		result = append(result, &boxlayout.Box{Window: "options", Weight: 1})
-	}
-
-	if (!args.InDemo && args.UserConfig.Gui.ShowBottomLine) || args.IsAnyModeActive {
+	if args.IsAnyModeActive {
 		result = append(result,
 			&boxlayout.Box{
 				Window: "information",
-				// unlike appStatus, informationStr has various colors so we need to decolorise before taking the length
-				Size: utils.StringWidth(utils.Decolorise(args.InformationStr)),
+				Size:   utils.StringWidth(utils.Decolorise(args.InformationStr)),
 			})
 	}
 
-	if len(result) == 2 && result[0].Window == "appStatus" {
-		// Only status and information are showing; need to insert a flexible
-		// spacer between the two, so that information is right-aligned. Note
-		// that the call to insertSpacerBoxes below will still insert a 1-char
-		// spacer in addition (right after the flexible one); this is needed for
-		// the case that there's not enough room, to ensure there's always at
-		// least one space.
+	// Add flexible spacer between status and information if both present
+	if len(result) == 2 {
 		result = slices.Insert(result, 1, flexibleSpacerBox())
 	} else if len(result) == 1 {
 		if result[0].Window == "information" {
-			// Only information is showing; need to add a flexible spacer so
-			// that information is right-aligned
+			// Right-align information
 			result = slices.Insert(result, 0, flexibleSpacerBox())
 		} else {
-			// Only status is showing; need to make it flexible so that it
-			// extends over the whole width
+			// Status fills the width
 			result[0].Size = 0
 			result[0].Weight = 1
 		}
-	}
-
-	if len(result) > 0 {
-		// If we have at least one view, insert 1-char wide spacer boxes between them.
-		result = insertSpacerBoxes(result)
 	}
 
 	return result
@@ -533,5 +478,47 @@ func commitsPanelChildren(args WindowArrangementArgs) func(width int, height int
 		return []*boxlayout.Box{
 			{Window: "commits", Weight: 1},
 		}
+	}
+}
+
+func bottomSectionChildren(args WindowArrangementArgs) []*boxlayout.Box {
+	// Commits takes 2/3 width, options section takes 1/3
+	optionsDirection := boxlayout.ROW
+	if args.InSearchPrompt {
+		// Search needs horizontal layout (searchPrefix | search)
+		optionsDirection = boxlayout.COLUMN
+	}
+	return []*boxlayout.Box{
+		{
+			Direction:           boxlayout.ROW,
+			Weight:              2,
+			ConditionalChildren: commitsPanelChildren(args),
+		},
+		{
+			Direction: optionsDirection,
+			Weight:    1,
+			Children:  optionsSectionChildren(args),
+		},
+	}
+}
+
+func optionsSectionChildren(args WindowArrangementArgs) []*boxlayout.Box {
+	// Show search prompt if active, otherwise show options
+	if args.InSearchPrompt {
+		return []*boxlayout.Box{
+			{
+				Window: "searchPrefix",
+				Size:   utils.StringWidth(args.SearchPrefix),
+			},
+			{
+				Window: "search",
+				Weight: 1,
+			},
+		}
+	}
+
+	// Show options (keybind notes) in this section
+	return []*boxlayout.Box{
+		{Window: "options", Weight: 1},
 	}
 }

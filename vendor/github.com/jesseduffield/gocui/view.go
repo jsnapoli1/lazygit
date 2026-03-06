@@ -1725,6 +1725,13 @@ func (v *View) SelectedLineRange() (int, int) {
 }
 
 func (v *View) RenderTextArea() {
+	// Sync TabWidth from view to TextArea so cursor positioning accounts for tab expansion
+	tabWidth := v.TabWidth
+	if tabWidth < 1 {
+		tabWidth = 4
+	}
+	v.TextArea.TabWidth = tabWidth
+
 	v.Clear()
 	fmt.Fprint(v, v.TextArea.GetContent())
 	cursorX, cursorY := v.TextArea.GetCursorXY()

@@ -89,11 +89,12 @@ func (self *FilesController) GetKeybindings(opts types.KeybindingsOpts) []*types
 			Tooltip:     self.c.Tr.FindBaseCommitForFixupTooltip,
 		},
 		{
-			Key:             opts.GetKey(opts.Config.Universal.Edit),
-			Handler:         self.openFileBrowser,
-			Description:     self.c.Tr.OpenFileBrowser,
-			Tooltip:         self.c.Tr.OpenFileBrowserTooltip,
-			DisplayOnScreen: true,
+			Key:               opts.GetKey(opts.Config.Universal.Edit),
+			Handler:           self.withItems(self.edit),
+			GetDisabledReason: self.require(self.singleItemSelected()),
+			Description:       self.c.Tr.Edit,
+			Tooltip:           self.c.Tr.EditFileTooltip,
+			DisplayOnScreen:   true,
 		},
 		{
 			Key:               opts.GetKey(opts.Config.Universal.OpenFile),
@@ -936,6 +937,13 @@ func (self *FilesController) Open() error {
 
 func (self *FilesController) openFileBrowser() error {
 	return self.c.Helpers().FileBrowser.OpenFileBrowser()
+}
+
+func (self *FilesController) edit(nodes []*filetree.FileNode) error {
+	return self.c.Helpers().Files.EditFiles(lo.FilterMap(nodes,
+		func(node *filetree.FileNode, _ int) (string, bool) {
+			return node.GetPath(), node.IsFile()
+		}))
 }
 
 func (self *FilesController) openDiffTool(node *filetree.FileNode) error {

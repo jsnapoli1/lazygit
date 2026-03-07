@@ -94,10 +94,14 @@ func (self *AppStatusHelper) renderAppStatus() {
 		ticker := time.NewTicker(time.Millisecond * time.Duration(self.c.UserConfig().Gui.Spinner.Rate))
 		defer ticker.Stop()
 		for range ticker.C {
-			appStatus, color := self.statusMgr().GetStatusString(self.c.UserConfig())
-			self.c.Views().AppStatus.FgColor = color
+			appStatus, _ := self.statusMgr().GetStatusString(self.c.UserConfig())
 			self.c.OnUIThread(func() error {
-				self.c.SetViewContent(self.c.Views().AppStatus, appStatus)
+				// Show status in Options panel title
+				if appStatus != "" {
+					self.c.Views().Options.Title = appStatus
+				} else {
+					self.c.Views().Options.Title = self.c.Tr.OptionsTitle
+				}
 				return nil
 			})
 
@@ -128,15 +132,15 @@ func (self *AppStatusHelper) renderAppStatusSync(stop chan struct{}) {
 		for {
 			select {
 			case <-ticker.C:
-				appStatus, color := self.statusMgr().GetStatusString(self.c.UserConfig())
-				self.c.Views().AppStatus.FgColor = color
-				self.c.SetViewContent(self.c.Views().AppStatus, appStatus)
-				// Redraw all views of the bottom line:
-				bottomLineViews := []*gocui.View{
-					self.c.Views().AppStatus, self.c.Views().Options, self.c.Views().Information,
-					self.c.Views().StatusSpacer1, self.c.Views().StatusSpacer2,
+				appStatus, _ := self.statusMgr().GetStatusString(self.c.UserConfig())
+				// Show status in Options panel title
+				if appStatus != "" {
+					self.c.Views().Options.Title = appStatus
+				} else {
+					self.c.Views().Options.Title = self.c.Tr.OptionsTitle
 				}
-				_ = self.c.GocuiGui().ForceRedrawViews(bottomLineViews...)
+				// Redraw the Options view
+				_ = self.c.GocuiGui().ForceRedrawViews(self.c.Views().Options)
 			case <-stop:
 				break outer
 			}

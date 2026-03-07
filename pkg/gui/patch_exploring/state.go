@@ -53,9 +53,9 @@ func NewState(diff string, selectedLineIdx int, view *gocui.View, oldState *Stat
 		return oldState
 	}
 
-	patch := patch.Parse(diff)
+	parsedPatch := patch.Parse(diff)
 
-	if !patch.ContainsChanges() {
+	if !parsedPatch.ContainsChanges() {
 		return nil
 	}
 
@@ -67,7 +67,7 @@ func NewState(diff string, selectedLineIdx int, view *gocui.View, oldState *Stat
 	}
 
 	selectMode := LINE
-	if useHunkModeByDefault && !patch.IsSingleHunkForWholeFile() {
+	if useHunkModeByDefault && !parsedPatch.IsSingleHunkForWholeFile() {
 		selectMode = HUNK
 	}
 
@@ -89,13 +89,13 @@ func NewState(diff string, selectedLineIdx int, view *gocui.View, oldState *Stat
 		if oldState.selectMode != RANGE {
 			selectMode = oldState.selectMode
 		}
-		selectedLineIdx = viewLineIndices[patch.GetNextChangeIdx(oldState.patchLineIndices[oldState.selectedLineIdx])]
+		selectedLineIdx = viewLineIndices[parsedPatch.GetNextChangeIdx(oldState.patchLineIndices[oldState.selectedLineIdx])]
 	} else {
-		selectedLineIdx = viewLineIndices[patch.GetNextChangeIdx(0)]
+		selectedLineIdx = viewLineIndices[parsedPatch.GetNextChangeIdx(0)]
 	}
 
 	return &State{
-		patch:               patch,
+		patch:               parsedPatch,
 		selectedLineIdx:     selectedLineIdx,
 		selectMode:          selectMode,
 		rangeStartLineIdx:   rangeStartLineIdx,

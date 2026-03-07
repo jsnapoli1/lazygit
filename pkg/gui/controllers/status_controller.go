@@ -47,12 +47,6 @@ func (self *StatusController) GetKeybindings(opts types.KeybindingsOpts) []*type
 			DisplayOnScreen: true,
 		},
 		{
-			Key:             opts.GetKey(opts.Config.Status.CheckForUpdate),
-			Handler:         self.handleCheckForUpdate,
-			Description:     self.c.Tr.CheckForUpdate,
-			DisplayOnScreen: true,
-		},
-		{
 			Key:             opts.GetKey(opts.Config.Status.RecentRepos),
 			Handler:         self.c.Helpers().Repos.CreateRecentReposMenu,
 			Description:     self.c.Tr.SwitchRepo,
@@ -237,6 +231,3 @@ func (self *StatusController) showDashboard() {
 	})
 }
 
-func (self *StatusController) handleCheckForUpdate() error {
-	return self.c.Helpers().Update.CheckForUpdateInForeground()
-}

@@ -71,6 +71,14 @@ func (gui *Gui) orderedViewNameMappings() []viewNameMapping {
 		{viewPtr: &gui.Views.Prompt, name: "prompt"},
 		{viewPtr: &gui.Views.Tooltip, name: "tooltip"},
 
+		// File browser (miller columns)
+		{viewPtr: &gui.Views.FileBrowserLeft, name: "fileBrowserLeft"},
+		{viewPtr: &gui.Views.FileBrowserMiddle, name: "fileBrowserMiddle"},
+		{viewPtr: &gui.Views.FileBrowserRight, name: "fileBrowserRight"},
+
+		// File editor
+		{viewPtr: &gui.Views.FileEditor, name: "fileEditor"},
+
 		// this guy will cover everything else when it appears
 		{viewPtr: &gui.Views.Limit, name: "limit"},
 	}
@@ -85,7 +93,8 @@ func (gui *Gui) createAllViews() error {
 		}
 	}
 
-	gui.Views.Options.Frame = false
+	gui.Views.Options.Frame = true
+	gui.Views.Options.Title = gui.c.Tr.OptionsTitle
 
 	gui.Views.SearchPrefix.BgColor = gocui.ColorDefault
 	gui.Views.SearchPrefix.FgColor = gocui.ColorCyan
@@ -151,6 +160,26 @@ func (gui *Gui) createAllViews() error {
 	gui.Views.Extras.AutoRenderHyperLinks = true
 
 	gui.Views.Snake.FgColor = gocui.ColorGreen
+
+	// File browser views
+	gui.Views.FileBrowserLeft.Visible = false
+	gui.Views.FileBrowserLeft.Highlight = true
+	gui.Views.FileBrowserLeft.SelBgColor = gocui.ColorBlue
+	gui.Views.FileBrowserLeft.SelFgColor = gocui.ColorWhite
+
+	gui.Views.FileBrowserMiddle.Visible = false
+	gui.Views.FileBrowserMiddle.Highlight = true
+	gui.Views.FileBrowserMiddle.SelBgColor = gocui.ColorBlue
+	gui.Views.FileBrowserMiddle.SelFgColor = gocui.ColorWhite
+
+	gui.Views.FileBrowserRight.Visible = false
+	gui.Views.FileBrowserRight.Wrap = true
+
+	// File editor
+	gui.Views.FileEditor.Visible = false
+	gui.Views.FileEditor.Editable = true
+	gui.Views.FileEditor.Wrap = false // Don't wrap - TextArea cursor doesn't account for view wrapping
+	gui.Views.FileEditor.Editor = gocui.EditorFunc(gui.fileEditorKeypress)
 
 	return nil
 }
@@ -221,25 +250,20 @@ func (gui *Gui) configureViewProperties() {
 			return keyToTitlePrefix(binding)
 		})
 
-		gui.Views.Status.TitlePrefix = jumpLabels[0]
+		gui.Views.Files.TitlePrefix = jumpLabels[0]
+		gui.Views.Worktrees.TitlePrefix = jumpLabels[0]
+		gui.Views.Submodules.TitlePrefix = jumpLabels[0]
 
-		gui.Views.Files.TitlePrefix = jumpLabels[1]
-		gui.Views.Worktrees.TitlePrefix = jumpLabels[1]
-		gui.Views.Submodules.TitlePrefix = jumpLabels[1]
+		gui.Views.Branches.TitlePrefix = jumpLabels[1]
+		gui.Views.Remotes.TitlePrefix = jumpLabels[1]
+		gui.Views.Tags.TitlePrefix = jumpLabels[1]
 
-		gui.Views.Branches.TitlePrefix = jumpLabels[2]
-		gui.Views.Remotes.TitlePrefix = jumpLabels[2]
-		gui.Views.Tags.TitlePrefix = jumpLabels[2]
-
-		gui.Views.Commits.TitlePrefix = jumpLabels[3]
-		gui.Views.ReflogCommits.TitlePrefix = jumpLabels[3]
-
-		gui.Views.Stash.TitlePrefix = jumpLabels[4]
+		gui.Views.Commits.TitlePrefix = jumpLabels[2]
+		gui.Views.ReflogCommits.TitlePrefix = jumpLabels[2]
+		gui.Views.Stash.TitlePrefix = jumpLabels[2]
 
 		gui.Views.Main.TitlePrefix = keyToTitlePrefix(gui.c.UserConfig().Keybinding.Universal.FocusMainView)
 	} else {
-		gui.Views.Status.TitlePrefix = ""
-
 		gui.Views.Files.TitlePrefix = ""
 		gui.Views.Worktrees.TitlePrefix = ""
 		gui.Views.Submodules.TitlePrefix = ""
@@ -250,7 +274,6 @@ func (gui *Gui) configureViewProperties() {
 
 		gui.Views.Commits.TitlePrefix = ""
 		gui.Views.ReflogCommits.TitlePrefix = ""
-
 		gui.Views.Stash.TitlePrefix = ""
 
 		gui.Views.Main.TitlePrefix = ""

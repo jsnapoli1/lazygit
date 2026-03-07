@@ -148,6 +148,9 @@ type Gui struct {
 	integrationTest integrationTypes.IntegrationTest
 
 	afterLayoutFuncs chan func() error
+
+	// viEditor handles vi-style editing for the file editor
+	viEditor *ViEditor
 }
 
 type StateAccessor struct {
@@ -461,10 +464,8 @@ func (gui *Gui) onUserConfigLoaded() error {
 
 	gui.g.Mouse = userConfig.Gui.MouseEvents
 
-	// originally we could only hide the command log permanently via the config
-	// but now we do it via state. So we need to still support the config for the
-	// sake of backwards compatibility. We're making use of short circuiting here
-	gui.ShowExtrasWindow = userConfig.Gui.ShowCommandLog && !gui.c.GetAppState().HideCommandLog
+	// The extras window (command log) is now hidden by default and opened as a popup via 'L'
+	gui.ShowExtrasWindow = false
 
 	authors.SetCustomAuthors(userConfig.Gui.AuthorColors)
 	if userConfig.Gui.NerdFontsVersion != "" {
@@ -810,6 +811,10 @@ func (gui *Gui) viewTabMap() map[string][]context.TabView {
 				Tab:      gui.c.Tr.ReflogCommitsTitle,
 				ViewName: "reflogCommits",
 			},
+			{
+				Tab:      gui.c.Tr.StashTitle,
+				ViewName: "stash",
+			},
 		},
 		"files": {
 			{
@@ -888,6 +893,10 @@ func (gui *Gui) RunAndHandleError(startArgs appTypes.StartArgs) error {
 			}
 
 			close(gui.stopChan)
+
+			if gui.BackgroundRoutineMgr.fileWatcher != nil {
+				gui.BackgroundRoutineMgr.fileWatcher.Close()
+			}
 
 			if errors.Is(err, gocui.ErrQuit) {
 				if gui.c.State().GetRetainOriginalDir() {

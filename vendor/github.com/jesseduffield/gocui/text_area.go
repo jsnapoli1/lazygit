@@ -36,6 +36,7 @@ type TextArea struct {
 	clipboard     string
 	AutoWrap      bool
 	AutoWrapWidth int
+	TabWidth      int // number of spaces per tab, defaults to 4 if not set
 }
 
 func stringToTextAreaCells(str string) []TextAreaCell {
@@ -56,11 +57,11 @@ func stringToTextAreaCells(str string) []TextAreaCell {
 
 // Returns the indices in content where soft line breaks occur due to auto-wrapping to the given width.
 func AutoWrapContent(content string, autoWrapWidth int) []int {
-	_, softLineBreakIndices := contentToCells(content, autoWrapWidth)
+	_, softLineBreakIndices := contentToCells(content, autoWrapWidth, 4) // use default tab width
 	return softLineBreakIndices
 }
 
-func contentToCells(content string, autoWrapWidth int) ([]TextAreaCell, []int) {
+func contentToCells(content string, autoWrapWidth int, tabWidth int) ([]TextAreaCell, []int) {
 	estimatedNumberOfSoftLineBreaks := 0
 	if autoWrapWidth > 0 {
 		estimatedNumberOfSoftLineBreaks = len(content) / autoWrapWidth
@@ -76,11 +77,15 @@ func contentToCells(content string, autoWrapWidth int) ([]TextAreaCell, []int) {
 	cells := stringToTextAreaCells(content)
 	y := 0
 
-	appendCellsSinceLineStart := func(to int) {
+	appendCellsSinceLineStart := func(to int, tabWidth int) {
 		x := 0
 		for i := startOfLine; i < to; i++ {
 			cells[i].x = x
 			cells[i].y = y
+			if cells[i].char == "\t" {
+				// Tab width depends on current x position, same as view rendering
+				cells[i].width = tabWidth - (x % tabWidth)
+			}
 			x += cells[i].width
 		}
 
@@ -89,7 +94,7 @@ func contentToCells(content string, autoWrapWidth int) ([]TextAreaCell, []int) {
 
 	for currentPos, c := range cells {
 		if c.char == "\n" {
-			appendCellsSinceLineStart(currentPos + 1)
+			appendCellsSinceLineStart(currentPos+1, tabWidth)
 			y++
 			startOfLine = currentPos + 1
 			indexOfLastWhitespace = -1
@@ -102,7 +107,7 @@ func contentToCells(content string, autoWrapWidth int) ([]TextAreaCell, []int) {
 				indexOfLastWhitespace = currentPos + 1
 			} else if autoWrapWidth > 0 && currentLineWidth > autoWrapWidth && indexOfLastWhitespace >= 0 {
 				wrapAt := indexOfLastWhitespace
-				appendCellsSinceLineStart(wrapAt)
+				appendCellsSinceLineStart(wrapAt, tabWidth)
 				contentIndex := cells[wrapAt].contentIndex
 				y++
 				result = append(result, TextAreaCell{char: "\n", width: 1, contentIndex: contentIndex, x: 0, y: y})
@@ -122,7 +127,7 @@ func contentToCells(content string, autoWrapWidth int) ([]TextAreaCell, []int) {
 		}
 	}
 
-	appendCellsSinceLineStart(len(cells))
+	appendCellsSinceLineStart(len(cells), tabWidth)
 
 	return result, softLineBreakIndices
 }
@@ -247,7 +252,12 @@ func (self *TextArea) updateCells() {
 		width = -1
 	}
 
-	self.cells, _ = contentToCells(self.content, width)
+	tabWidth := self.TabWidth
+	if tabWidth < 1 {
+		tabWidth = 4
+	}
+
+	self.cells, _ = contentToCells(self.content, width, tabWidth)
 }
 
 func (self *TextArea) typeCharacter(ch string) {

@@ -10,6 +10,7 @@ import (
 	"github.com/jesseduffield/gocui"
 	"github.com/jesseduffield/lazygit/pkg/commands/git_commands"
 	"github.com/jesseduffield/lazygit/pkg/commands/models"
+	"github.com/jesseduffield/lazygit/pkg/commands/patch"
 	"github.com/jesseduffield/lazygit/pkg/gui/context"
 	"github.com/jesseduffield/lazygit/pkg/gui/filetree"
 	"github.com/jesseduffield/lazygit/pkg/gui/types"
@@ -91,7 +92,7 @@ func (self *FilesController) GetKeybindings(opts types.KeybindingsOpts) []*types
 		{
 			Key:               opts.GetKey(opts.Config.Universal.Edit),
 			Handler:           self.withItems(self.edit),
-			GetDisabledReason: self.require(self.withFileTreeViewModelMutex(self.itemsSelected(self.canEditFiles))),
+			GetDisabledReason: self.require(self.singleItemSelected()),
 			Description:       self.c.Tr.Edit,
 			Tooltip:           self.c.Tr.EditFileTooltip,
 			DisplayOnScreen:   true,
@@ -102,6 +103,12 @@ func (self *FilesController) GetKeybindings(opts types.KeybindingsOpts) []*types
 			GetDisabledReason: self.require(self.singleItemSelected()),
 			Description:       self.c.Tr.OpenFile,
 			Tooltip:           self.c.Tr.OpenFileTooltip,
+		},
+		{
+			Key:         opts.GetKey(opts.Config.Files.OpenFileBrowser),
+			Handler:     self.openFileBrowser,
+			Description: self.c.Tr.OpenFileBrowser,
+			Tooltip:     self.c.Tr.OpenFileBrowserTooltip,
 		},
 		{
 			Key:               opts.GetKey(opts.Config.Files.IgnoreFile),
@@ -206,6 +213,12 @@ func (self *FilesController) GetKeybindings(opts types.KeybindingsOpts) []*types
 			Tooltip:           self.c.Tr.ExpandAllTooltip,
 			GetDisabledReason: self.require(self.isInTreeMode),
 		},
+		{
+			Key:         opts.GetKey(opts.Config.Main.ToggleDiffDisplayMode),
+			Handler:     self.toggleCleanDiffMode,
+			Description: self.c.Tr.ToggleDiffDisplayMode,
+			Tooltip:     self.c.Tr.ToggleDiffDisplayModeTooltip,
+		},
 	}
 }
 
@@ -294,32 +307,76 @@ func (self *FilesController) GetOnRenderToMain() func() {
 			split := self.c.UserConfig().Gui.SplitDiff == "always" || (node.GetHasUnstagedChanges() && node.GetHasStagedChanges())
 			mainShowsStaged := !split && node.GetHasStagedChanges()
 
-			cmdObj := self.c.Git().WorkingTree.WorktreeFileDiffCmdObj(node, false, mainShowsStaged)
 			title := self.c.Tr.UnstagedChanges
 			if mainShowsStaged {
 				title = self.c.Tr.StagedChanges
 			}
+
+			var mainTask types.UpdateTask
+			if node.File != nil {
+				// Get the diff as a string and format it
+				diff := self.c.Git().WorkingTree.WorktreeFileDiff(node.File, true, mainShowsStaged)
+				var formattedDiff string
+				if self.c.UserConfig().Git.SuccinctDiffMode {
+					formattedDiff = patch.Parse(diff).FormatView(patch.FormatViewOpts{
+						DisplayMode: patch.DisplayModeSuccinct,
+					})
+				} else {
+					// Full file mode - read file content
+					fileContent, _ := self.c.Git().File.Cat(node.GetPath())
+					formattedDiff = patch.Parse(diff).FormatView(patch.FormatViewOpts{
+						DisplayMode: patch.DisplayModeClean,
+						FileContent: fileContent,
+					})
+				}
+				mainTask = types.NewRenderStringTask(formattedDiff)
+			} else {
+				// For directories, use raw diff
+				cmdObj := self.c.Git().WorkingTree.WorktreeFileDiffCmdObj(node, false, mainShowsStaged)
+				mainTask = types.NewRunPtyTask(cmdObj.GetCmd())
+			}
+
 			refreshOpts := types.RefreshMainOpts{
 				Pair: self.c.MainViewPairs().Normal,
 				Main: &types.ViewUpdateOpts{
-					Task:     types.NewRunPtyTask(cmdObj.GetCmd()),
+					Task:     mainTask,
 					SubTitle: self.c.Helpers().Diff.IgnoringWhitespaceSubTitle(),
 					Title:    title,
 				},
 			}
 
 			if split {
-				cmdObj := self.c.Git().WorkingTree.WorktreeFileDiffCmdObj(node, false, true)
-
 				title := self.c.Tr.StagedChanges
 				if mainShowsStaged {
 					title = self.c.Tr.UnstagedChanges
 				}
 
+				var secondaryTask types.UpdateTask
+				if node.File != nil {
+					diff := self.c.Git().WorkingTree.WorktreeFileDiff(node.File, true, true)
+					var formattedDiff string
+					if self.c.UserConfig().Git.SuccinctDiffMode {
+						formattedDiff = patch.Parse(diff).FormatView(patch.FormatViewOpts{
+							DisplayMode: patch.DisplayModeSuccinct,
+						})
+					} else {
+						// Full file mode - for staged changes, we need the staged version
+						// For now, use succinct mode for staged panel in full file mode
+						// TODO: get staged file content with git show :path
+						formattedDiff = patch.Parse(diff).FormatView(patch.FormatViewOpts{
+							DisplayMode: patch.DisplayModeSuccinct,
+						})
+					}
+					secondaryTask = types.NewRenderStringTask(formattedDiff)
+				} else {
+					cmdObj := self.c.Git().WorkingTree.WorktreeFileDiffCmdObj(node, false, true)
+					secondaryTask = types.NewRunPtyTask(cmdObj.GetCmd())
+				}
+
 				refreshOpts.Secondary = &types.ViewUpdateOpts{
 					Title:    title,
 					SubTitle: self.c.Helpers().Diff.IgnoringWhitespaceSubTitle(),
-					Task:     types.NewRunPtyTask(cmdObj.GetCmd()),
+					Task:     secondaryTask,
 				}
 			}
 
@@ -332,6 +389,22 @@ func (self *FilesController) GetOnClick() func() error {
 	return self.withItemGraceful(func(node *filetree.FileNode) error {
 		return self.press([]*filetree.FileNode{node})
 	})
+}
+
+func (self *FilesController) toggleCleanDiffMode() error {
+	self.c.UserConfig().Git.SuccinctDiffMode = !self.c.UserConfig().Git.SuccinctDiffMode
+
+	// Show toast with the new mode name
+	var modeName string
+	if self.c.UserConfig().Git.SuccinctDiffMode {
+		modeName = self.c.Tr.DiffDisplayModeSuccinct
+	} else {
+		modeName = self.c.Tr.DiffDisplayModeClean
+	}
+	self.c.Toast(modeName)
+
+	self.c.Context().CurrentSide().HandleFocus(types.OnFocusOpts{})
+	return nil
 }
 
 func (self *FilesController) GetOnClickFocusedMainView() func(mainViewName string, clickedLineIdx int) error {
@@ -919,23 +992,6 @@ func (self *FilesController) setStatusFiltering(filter filetree.FileTreeDisplayF
 	return nil
 }
 
-func (self *FilesController) edit(nodes []*filetree.FileNode) error {
-	return self.c.Helpers().Files.EditFiles(lo.FilterMap(nodes,
-		func(node *filetree.FileNode, _ int) (string, bool) {
-			return node.GetPath(), node.IsFile()
-		}))
-}
-
-func (self *FilesController) canEditFiles(nodes []*filetree.FileNode) *types.DisabledReason {
-	if lo.NoneBy(nodes, func(node *filetree.FileNode) bool { return node.IsFile() }) {
-		return &types.DisabledReason{
-			Text:             self.c.Tr.ErrCannotEditDirectory,
-			ShowErrorInPanel: true,
-		}
-	}
-
-	return nil
-}
 
 func (self *FilesController) Open() error {
 	node := self.context().GetSelected()
@@ -944,6 +1000,20 @@ func (self *FilesController) Open() error {
 	}
 
 	return self.c.Helpers().Files.OpenFile(node.GetPath())
+}
+
+func (self *FilesController) openFileBrowser() error {
+	return self.c.Helpers().FileBrowser.OpenFileBrowser()
+}
+
+func (self *FilesController) edit(nodes []*filetree.FileNode) error {
+	// Get the first file path
+	for _, node := range nodes {
+		if node.IsFile() {
+			return self.c.Helpers().FileEditor.OpenFileEditor(node.GetPath())
+		}
+	}
+	return nil
 }
 
 func (self *FilesController) openDiffTool(node *filetree.FileNode) error {

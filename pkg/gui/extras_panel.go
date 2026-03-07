@@ -37,8 +37,20 @@ func (gui *Gui) handleCreateExtrasMenuPanel() error {
 }
 
 func (gui *Gui) handleFocusCommandLog() error {
-	gui.c.State().SetShowExtrasWindow(true)
-	// TODO: is this necessary? Can't I just call 'return from context'?
+	gui.State.Contexts.CommandLog.SetParentContext(gui.c.Context().CurrentSide())
+	gui.c.Context().Push(gui.State.Contexts.CommandLog, types.OnFocusOpts{})
+	return nil
+}
+
+func (gui *Gui) handleToggleCommandLogPopup() error {
+	currentContext := gui.c.Context().Current()
+	if currentContext.GetKey() == context.COMMAND_LOG_CONTEXT_KEY {
+		// Already focused on command log, close it
+		gui.c.Context().Pop()
+		return nil
+	}
+
+	// Open the command log as a popup
 	gui.State.Contexts.CommandLog.SetParentContext(gui.c.Context().CurrentSide())
 	gui.c.Context().Push(gui.State.Contexts.CommandLog, types.OnFocusOpts{})
 	return nil

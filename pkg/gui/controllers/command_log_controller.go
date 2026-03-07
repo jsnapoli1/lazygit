@@ -26,9 +26,16 @@ func (self *CommandLogController) GetKeybindings(opts types.KeybindingsOpts) []*
 	return bindings
 }
 
+func (self *CommandLogController) GetOnFocus() func(types.OnFocusOpts) {
+	return func(types.OnFocusOpts) {
+		self.c.Views().Extras.Visible = true
+	}
+}
+
 func (self *CommandLogController) GetOnFocusLost() func(types.OnFocusLostOpts) {
 	return func(types.OnFocusLostOpts) {
 		self.c.Views().Extras.Autoscroll = true
+		self.c.Views().Extras.Visible = false
 	}
 }
 

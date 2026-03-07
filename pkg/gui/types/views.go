@@ -44,4 +44,12 @@ type Views struct {
 
 	// for playing the easter egg snake game
 	Snake *gocui.View
+
+	// File browser views (miller columns)
+	FileBrowserLeft   *gocui.View
+	FileBrowserMiddle *gocui.View
+	FileBrowserRight  *gocui.View
+
+	// File editor view
+	FileEditor *gocui.View
 }

@@ -15,6 +15,7 @@ coverage.txt
 
 # Binaries
 lazygit
+lazygit-dev
 lazygit.exe
 
 test/git_server/data

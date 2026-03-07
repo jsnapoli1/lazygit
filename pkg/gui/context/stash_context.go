@@ -35,7 +35,7 @@ func NewStashContext(
 		ListContextTrait: &ListContextTrait{
 			Context: NewSimpleContext(NewBaseContext(NewBaseContextOpts{
 				View:       c.Views().Stash,
-				WindowName: "stash",
+				WindowName: "commits",
 				Key:        STASH_CONTEXT_KEY,
 				Kind:       types.SIDE_CONTEXT,
 				Focusable:  true,

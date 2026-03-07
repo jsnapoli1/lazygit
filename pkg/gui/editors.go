@@ -56,3 +56,50 @@ func (gui *Gui) searchEditor(v *gocui.View, key gocui.Key, ch rune, mod gocui.Mo
 
 	return matched
 }
+
+func (gui *Gui) fileEditorKeypress(v *gocui.View, key gocui.Key, ch rune, mod gocui.Modifier) bool {
+	if gui.viEditor == nil {
+		gui.viEditor = NewViEditor(v, func(mode ViMode) {
+			gui.updateViModeDisplay(mode)
+		}, func(cmd ViCommand) {
+			gui.handleViCommand(cmd)
+		})
+	}
+
+	// Let the vi editor handle the keypress
+	handled := gui.viEditor.Edit(key, ch, mod)
+	if handled {
+		gui.updateViModeDisplay(gui.viEditor.Mode())
+	}
+	return handled
+}
+
+func (gui *Gui) handleViCommand(cmd ViCommand) {
+	switch cmd {
+	case ViCommandWrite:
+		if err := gui.State.Contexts.FileEditor.SaveFile(); err != nil {
+			gui.c.ErrorToast(err.Error())
+		} else {
+			gui.c.Toast("File saved")
+		}
+	case ViCommandQuit, ViCommandQuitForce, ViCommandQuitAll:
+		gui.c.Context().Pop()
+	case ViCommandWriteQuit, ViCommandWriteAll:
+		if err := gui.State.Contexts.FileEditor.SaveFile(); err != nil {
+			gui.c.ErrorToast(err.Error())
+		} else {
+			gui.c.Toast("File saved")
+			gui.c.Context().Pop()
+		}
+	}
+}
+
+func (gui *Gui) updateViModeDisplay(mode ViMode) {
+	if gui.viEditor != nil {
+		gui.Views.FileEditor.Subtitle = gui.viEditor.ModeString()
+	}
+}
+
+func (gui *Gui) ResetViEditor() {
+	gui.viEditor = nil
+}

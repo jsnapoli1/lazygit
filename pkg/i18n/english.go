@@ -17,6 +17,7 @@ type TranslationSet struct {
 	BranchesTitle                         string
 	CommitsTitle                          string
 	StashTitle                            string
+	OptionsTitle                          string
 	SnakeTitle                            string
 	EasterEgg                             string
 	UnstagedChanges                       string
@@ -260,6 +261,8 @@ type TranslationSet struct {
 	EditFileTooltip                       string
 	OpenFile                              string
 	OpenFileTooltip                       string
+	OpenFileBrowser                       string
+	OpenFileBrowserTooltip                string
 	OpenInEditor                          string
 	IgnoreFile                            string
 	ExcludeFile                           string
@@ -302,6 +305,10 @@ type TranslationSet struct {
 	ToggleSelectionForPatch               string
 	EditHunk                              string
 	EditHunkTooltip                       string
+	ToggleDiffDisplayMode                 string
+	ToggleDiffDisplayModeTooltip          string
+	DiffDisplayModeSuccinct               string
+	DiffDisplayModeClean                  string
 	ToggleStagingView                     string
 	ToggleStagingViewTooltip              string
 	ReturnToFilesPanel                    string
@@ -751,6 +758,7 @@ type TranslationSet struct {
 	ErrWorktreeMovedOrRemoved                string
 	CommandLog                               string
 	ToggleShowCommandLog                     string
+	ToggleCommandLogPopup                    string
 	FocusCommandLog                          string
 	CommandLogHeader                         string
 	RandomTip                                string
@@ -1119,6 +1127,7 @@ func EnglishTranslationSet() *TranslationSet {
 		BranchesTitle:                        "Branches",
 		CommitsTitle:                         "Commits",
 		StashTitle:                           "Stash",
+		OptionsTitle:                         "Keybindings",
 		SnakeTitle:                           "Snake",
 		EasterEgg:                            "Easter egg",
 		UnstagedChanges:                      "Unstaged changes",
@@ -1362,6 +1371,8 @@ func EnglishTranslationSet() *TranslationSet {
 		EditFileTooltip:                      "Open file in external editor.",
 		OpenFile:                             `Open file`,
 		OpenFileTooltip:                      "Open file in default application.",
+		OpenFileBrowser:                      `Browse files`,
+		OpenFileBrowserTooltip:               "Open file browser to navigate and select files.",
 		OpenInEditor:                         "Open in editor",
 		IgnoreFile:                           `Add to .gitignore`,
 		ExcludeFile:                          `Add to .git/info/exclude`,
@@ -1407,6 +1418,10 @@ func EnglishTranslationSet() *TranslationSet {
 		ToggleSelectionForPatch:              `Toggle lines in patch`,
 		EditHunk:                             `Edit hunk`,
 		EditHunkTooltip:                      "Edit selected hunk in external editor.",
+		ToggleDiffDisplayMode:                "Toggle diff display mode",
+		ToggleDiffDisplayModeTooltip:         "Toggle between succinct and full diff display modes. Succinct mode shows snippets with line numbers.",
+		DiffDisplayModeSuccinct:              "Succinct diff",
+		DiffDisplayModeClean:                 "Full diff",
 		ToggleStagingView:                    "Switch view",
 		ToggleStagingViewTooltip:             "Switch to other view (staged/unstaged changes).",
 		ReturnToFilesPanel:                   `Return to files panel`,
@@ -1858,6 +1873,7 @@ func EnglishTranslationSet() *TranslationSet {
 		CommandLog:                               "Command log",
 		ErrWorktreeMovedOrRemoved:                "Cannot find worktree. It might have been moved or removed ¯\\_(ツ)_/¯",
 		ToggleShowCommandLog:                     "Toggle show/hide command log",
+		ToggleCommandLogPopup:                    "Toggle command log",
 		FocusCommandLog:                          "Focus command log",
 		CommandLogHeader:                         "You can hide/focus this panel by pressing '%s'\n",
 		RandomTip:                                "Random tip",

@@ -292,6 +292,8 @@ type GitConfig struct {
 	AllBranchesLogCmds []string `yaml:"allBranchesLogCmds"`
 	// If true, git diffs are rendered with the `--ignore-all-space` flag, which ignores whitespace changes. Can be toggled from within Lazygit with `<c-w>`.
 	IgnoreWhitespaceInDiffView bool `yaml:"ignoreWhitespaceInDiffView"`
+	// If true, display diffs in succinct format showing only snippets with line numbers. Can be toggled from within Lazygit with `~`.
+	SuccinctDiffMode bool `yaml:"-"` // Not persisted to config file
 	// The number of lines of context to show around each diff hunk. Can be changed from within Lazygit with the `{` and `}` keys.
 	DiffContextSize uint64 `yaml:"diffContextSize"`
 	// The threshold for considering a file to be renamed, in percent. Can be changed from within Lazygit with the `(` and `)` keys.
@@ -484,7 +486,9 @@ type KeybindingUniversalConfig struct {
 	OpenRecentRepos                   string   `yaml:"openRecentRepos"`
 	SubmitEditorText                  string   `yaml:"submitEditorText"`
 	ExtrasMenu                        string   `yaml:"extrasMenu"`
+	ToggleCommandLog                  string   `yaml:"toggleCommandLog"`
 	ToggleWhitespaceInDiffView        string   `yaml:"toggleWhitespaceInDiffView"`
+	CheckForUpdate                    string   `yaml:"checkForUpdate"`
 	IncreaseContextInDiffView         string   `yaml:"increaseContextInDiffView"`
 	DecreaseContextInDiffView         string   `yaml:"decreaseContextInDiffView"`
 	IncreaseRenameSimilarityThreshold string   `yaml:"increaseRenameSimilarityThreshold"`
@@ -493,7 +497,6 @@ type KeybindingUniversalConfig struct {
 }
 
 type KeybindingStatusConfig struct {
-	CheckForUpdate      string `yaml:"checkForUpdate"`
 	RecentRepos         string `yaml:"recentRepos"`
 	AllBranchesLogGraph string `yaml:"allBranchesLogGraph"`
 }
@@ -518,6 +521,7 @@ type KeybindingFilesConfig struct {
 	CopyFileInfoToClipboard  string `yaml:"copyFileInfoToClipboard"`
 	CollapseAll              string `yaml:"collapseAll"`
 	ExpandAll                string `yaml:"expandAll"`
+	OpenFileBrowser          string `yaml:"openFileBrowser"`
 }
 
 type KeybindingBranchesConfig struct {
@@ -590,9 +594,10 @@ type KeybindingCommitFilesConfig struct {
 }
 
 type KeybindingMainConfig struct {
-	ToggleSelectHunk string `yaml:"toggleSelectHunk"`
-	PickBothHunks    string `yaml:"pickBothHunks"`
-	EditSelectHunk   string `yaml:"editSelectHunk"`
+	ToggleSelectHunk      string `yaml:"toggleSelectHunk"`
+	PickBothHunks         string `yaml:"pickBothHunks"`
+	EditSelectHunk        string `yaml:"editSelectHunk"`
+	ToggleDiffDisplayMode string `yaml:"toggleDiffDisplayMode"`
 }
 
 type KeybindingSubmodulesConfig struct {
@@ -903,7 +908,7 @@ func GetDefaultConfig() *UserConfig {
 				NextBlockAlt:                      "l",
 				PrevBlockAlt2:                     "<backtab>",
 				NextBlockAlt2:                     "<tab>",
-				JumpToBlock:                       []string{"1", "2", "3", "4", "5"},
+				JumpToBlock:                       []string{"1", "2", "3"},
 				FocusMainView:                     "0",
 				NextMatch:                         "n",
 				PrevMatch:                         "N",
@@ -947,15 +952,16 @@ func GetDefaultConfig() *UserConfig {
 				CopyToClipboard:                   "<c-o>",
 				SubmitEditorText:                  "<enter>",
 				ExtrasMenu:                        "@",
+				ToggleCommandLog:                  "L",
 				ToggleWhitespaceInDiffView:        "<c-w>",
 				IncreaseContextInDiffView:         "}",
 				DecreaseContextInDiffView:         "{",
 				IncreaseRenameSimilarityThreshold: ")",
 				DecreaseRenameSimilarityThreshold: "(",
 				OpenDiffTool:                      "<c-t>",
+				CheckForUpdate:                    "u",
 			},
 			Status: KeybindingStatusConfig{
-				CheckForUpdate:      "u",
 				RecentRepos:         "<enter>",
 				AllBranchesLogGraph: "a",
 			},
@@ -979,6 +985,7 @@ func GetDefaultConfig() *UserConfig {
 				CopyFileInfoToClipboard:  "y",
 				CollapseAll:              "-",
 				ExpandAll:                "=",
+				OpenFileBrowser:          "<c-y>",
 			},
 			Branches: KeybindingBranchesConfig{
 				CopyPullRequestURL:     "<c-y>",
@@ -1044,9 +1051,10 @@ func GetDefaultConfig() *UserConfig {
 				CheckoutCommitFile: "c",
 			},
 			Main: KeybindingMainConfig{
-				ToggleSelectHunk: "a",
-				PickBothHunks:    "b",
-				EditSelectHunk:   "E",
+				ToggleSelectHunk:      "a",
+				PickBothHunks:         "b",
+				EditSelectHunk:        "E",
+				ToggleDiffDisplayMode: "~",
 			},
 			Submodules: KeybindingSubmodulesConfig{
 				Init:     "i",

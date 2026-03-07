@@ -317,6 +317,8 @@ func (self *ConfirmationHelper) ResizeCurrentPopupPanels() {
 			self.resizePromptPanel(parentPopupContext)
 		case self.c.Contexts().CommitMessage, self.c.Contexts().CommitDescription:
 			self.ResizeCommitMessagePanels(parentPopupContext)
+		case self.c.Contexts().CommandLog:
+			self.resizeCommandLogPanel(parentPopupContext)
 		}
 
 		parentPopupContext = c
@@ -382,6 +384,18 @@ func (self *ConfirmationHelper) resizeConfirmationPanel(parentPopupContext types
 	panelHeight := getMessageHeight(true, false, prompt, contentWidth, confirmationView.TabWidth)
 	x0, y0, x1, y1 := self.getPopupPanelDimensionsAux(panelWidth, panelHeight, parentPopupContext)
 	_, _ = self.c.GocuiGui().SetView(confirmationView.Name(), x0, y0, x1, y1, 0)
+}
+
+func (self *ConfirmationHelper) resizeCommandLogPanel(parentPopupContext types.Context) {
+	width, height := self.c.GocuiGui().Size()
+	// Make the command log take up most of the screen
+	panelWidth := width * 3 / 4
+	panelHeight := height * 3 / 4
+	x0 := (width - panelWidth) / 2
+	y0 := (height - panelHeight) / 2
+	x1 := x0 + panelWidth
+	y1 := y0 + panelHeight
+	_, _ = self.c.GocuiGui().SetView(self.c.Views().Extras.Name(), x0, y0, x1, y1, 0)
 }
 
 func (self *ConfirmationHelper) resizePromptPanel(parentPopupContext types.Context) {

@@ -90,6 +90,8 @@ func (gui *Gui) resetHelpersAndControllers() {
 		modeHelper,
 	)
 
+	filesHelper := helpers.NewFilesHelper(helperCommon)
+
 	gui.helpers = &helpers.Helpers{
 		Refs:            refsHelper,
 		Host:            helpers.NewHostHelper(helperCommon),
@@ -97,7 +99,9 @@ func (gui *Gui) resetHelpersAndControllers() {
 		Staging:         stagingHelper,
 		Bisect:          bisectHelper,
 		Suggestions:     suggestionsHelper,
-		Files:           helpers.NewFilesHelper(helperCommon),
+		Files:           filesHelper,
+		FileBrowser:     helpers.NewFileBrowserHelper(helperCommon, filesHelper),
+		FileEditor:      helpers.NewFileEditorHelper(helperCommon),
 		WorkingTree:     helpers.NewWorkingTreeHelper(helperCommon, refsHelper, commitsHelper, gpgHelper, rebaseHelper),
 		Tags:            helpers.NewTagsHelper(helperCommon, commitsHelper, gpgHelper),
 		BranchesHelper:  helpers.NewBranchesHelper(helperCommon, worktreeHelper),
@@ -373,6 +377,16 @@ func (gui *Gui) resetHelpersAndControllers() {
 
 	controllers.AttachControllers(gui.State.Contexts.Menu,
 		menuController,
+	)
+
+	fileBrowserController := controllers.NewFileBrowserController(common)
+	controllers.AttachControllers(gui.State.Contexts.FileBrowser,
+		fileBrowserController,
+	)
+
+	fileEditorController := controllers.NewFileEditorController(common)
+	controllers.AttachControllers(gui.State.Contexts.FileEditor,
+		fileEditorController,
 	)
 
 	controllers.AttachControllers(gui.State.Contexts.CommitMessage,

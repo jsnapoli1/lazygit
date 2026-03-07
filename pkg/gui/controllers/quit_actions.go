@@ -96,6 +96,11 @@ func (self *QuitActions) Escape() error {
 func (self *QuitActions) EscapeEnabled() bool {
 	currentContext := self.c.Context().Current()
 
+	// FileEditor has its own vi-style escape handling
+	if currentContext.GetKey() == "fileEditor" {
+		return false
+	}
+
 	if listContext, ok := currentContext.(types.IListContext); ok {
 		if listContext.GetList().IsSelectingRange() {
 			return true

@@ -47,50 +47,48 @@ func TestGetWindowDimensions(t *testing.T) {
 			name:       "default",
 			mutateArgs: func(args *WindowArrangementArgs) {},
 			expected: `
-			╭status─────────────────╮╭main────────────────────────────────────────────╮
-			│                       ││                                                │
-			╰───────────────────────╯│                                                │
-			╭files──────────────────╮│                                                │
+			╭files──────────────────╮╭main────────────────────────────────────────────╮
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
-			╰───────────────────────╯│                                                │
-			╭branches───────────────╮│                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
-			╰───────────────────────╯│                                                │
-			╭commits────────────────╮│                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			╰───────────────────────╯│                                                │
-			╭stash──────────────────╮│                                                │
-			│                       ││                                                │
-			╰───────────────────────╯╰────────────────────────────────────────────────╯
-			<options──────────────────────────────────────────────────────>A<B────────>
-			A: statusSpacer1
-			B: information
+			<branches───────────────>╰────────────────────────────────────────────────╯
+			╭commits─────────────────────────────────────────╮╭options────────────────╮
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			╰────────────────────────────────────────────────╯╰───────────────────────╯
 			`,
 		},
 		{
-			name: "stash focused",
+			name: "commits focused",
 			mutateArgs: func(args *WindowArrangementArgs) {
-				args.CurrentSideWindow = "stash"
+				args.CurrentSideWindow = "commits"
 			},
 			expected: `
-			╭status─────────────────╮╭main────────────────────────────────────────────╮
+			╭files──────────────────╮╭main────────────────────────────────────────────╮
 			│                       ││                                                │
-			╰───────────────────────╯│                                                │
-			╭files──────────────────╮│                                                │
+			│                       ││                                                │
+			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
@@ -103,22 +101,20 @@ func TestGetWindowDimensions(t *testing.T) {
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
-			╰───────────────────────╯│                                                │
-			╭commits────────────────╮│                                                │
-			│                       ││                                                │
-			│                       ││                                                │
-			│                       ││                                                │
-			│                       ││                                                │
-			╰───────────────────────╯│                                                │
-			╭stash──────────────────╮│                                                │
-			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			╰───────────────────────╯╰────────────────────────────────────────────────╯
-			<options──────────────────────────────────────────────────────>A<B────────>
-			A: statusSpacer1
-			B: information
+			╭commits─────────────────────────────────────────╮╭options────────────────╮
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			╰────────────────────────────────────────────────╯╰───────────────────────╯
 			`,
 		},
 		{
@@ -127,10 +123,7 @@ func TestGetWindowDimensions(t *testing.T) {
 				args.UserConfig.Gui.ExpandFocusedSidePanel = true
 			},
 			expected: `
-			╭status─────────────────╮╭main────────────────────────────────────────────╮
-			│                       ││                                                │
-			╰───────────────────────╯│                                                │
-			╭files──────────────────╮│                                                │
+			╭files──────────────────╮╭main────────────────────────────────────────────╮
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
@@ -140,25 +133,26 @@ func TestGetWindowDimensions(t *testing.T) {
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
-			╰───────────────────────╯│                                                │
-			╭branches───────────────╮│                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
-			╰───────────────────────╯│                                                │
-			╭commits────────────────╮│                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			╰───────────────────────╯│                                                │
-			╭stash──────────────────╮│                                                │
-			│                       ││                                                │
-			╰───────────────────────╯╰────────────────────────────────────────────────╯
-			<options──────────────────────────────────────────────────────>A<B────────>
-			A: statusSpacer1
-			B: information
+			<branches───────────────>╰────────────────────────────────────────────────╯
+			╭commits─────────────────────────────────────────╮╭options────────────────╮
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			╰────────────────────────────────────────────────╯╰───────────────────────╯
 			`,
 		},
 		{
@@ -168,10 +162,7 @@ func TestGetWindowDimensions(t *testing.T) {
 				args.UserConfig.Gui.ExpandedSidePanelWeight = 4
 			},
 			expected: `
-			╭status─────────────────╮╭main────────────────────────────────────────────╮
-			│                       ││                                                │
-			╰───────────────────────╯│                                                │
-			╭files──────────────────╮│                                                │
+			╭files──────────────────╮╭main────────────────────────────────────────────╮
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
@@ -185,21 +176,22 @@ func TestGetWindowDimensions(t *testing.T) {
 			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
-			╰───────────────────────╯│                                                │
-			╭branches───────────────╮│                                                │
+			│                       ││                                                │
+			│                       ││                                                │
 			│                       ││                                                │
 			│                       ││                                                │
 			╰───────────────────────╯│                                                │
-			╭commits────────────────╮│                                                │
-			│                       ││                                                │
-			│                       ││                                                │
-			╰───────────────────────╯│                                                │
-			╭stash──────────────────╮│                                                │
-			│                       ││                                                │
-			╰───────────────────────╯╰────────────────────────────────────────────────╯
-			<options──────────────────────────────────────────────────────>A<B────────>
-			A: statusSpacer1
-			B: information
+			<branches───────────────>╰────────────────────────────────────────────────╯
+			╭commits─────────────────────────────────────────╮╭options────────────────╮
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			╰────────────────────────────────────────────────╯╰───────────────────────╯
 			`,
 		},
 		{
@@ -208,38 +200,36 @@ func TestGetWindowDimensions(t *testing.T) {
 				args.UserConfig.Gui.SidePanelWidth = 0.5
 			},
 			expected: `
-			╭status──────────────────────────────╮╭main───────────────────────────────╮
-			│                                    ││                                   │
-			╰────────────────────────────────────╯│                                   │
-			╭files───────────────────────────────╮│                                   │
+			╭files───────────────────────────────╮╭main───────────────────────────────╮
 			│                                    ││                                   │
 			│                                    ││                                   │
 			│                                    ││                                   │
 			│                                    ││                                   │
 			│                                    ││                                   │
 			│                                    ││                                   │
-			╰────────────────────────────────────╯│                                   │
-			╭branches────────────────────────────╮│                                   │
 			│                                    ││                                   │
 			│                                    ││                                   │
 			│                                    ││                                   │
 			│                                    ││                                   │
 			│                                    ││                                   │
 			│                                    ││                                   │
-			╰────────────────────────────────────╯│                                   │
-			╭commits─────────────────────────────╮│                                   │
 			│                                    ││                                   │
 			│                                    ││                                   │
 			│                                    ││                                   │
 			│                                    ││                                   │
 			│                                    ││                                   │
 			╰────────────────────────────────────╯│                                   │
-			╭stash───────────────────────────────╮│                                   │
-			│                                    ││                                   │
-			╰────────────────────────────────────╯╰───────────────────────────────────╯
-			<options──────────────────────────────────────────────────────>A<B────────>
-			A: statusSpacer1
-			B: information
+			<branches────────────────────────────>╰───────────────────────────────────╯
+			╭commits─────────────────────────────────────────╮╭options────────────────╮
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			╰────────────────────────────────────────────────╯╰───────────────────────╯
 			`,
 		},
 		{
@@ -248,38 +238,36 @@ func TestGetWindowDimensions(t *testing.T) {
 				args.UserConfig.Gui.SidePanelWidth = 0.8
 			},
 			expected: `
-			╭status────────────────────────────────────────────────────╮╭main─────────╮
-			│                                                          ││             │
-			╰──────────────────────────────────────────────────────────╯│             │
-			╭files─────────────────────────────────────────────────────╮│             │
+			╭files─────────────────────────────────────────────────────╮╭main─────────╮
 			│                                                          ││             │
 			│                                                          ││             │
 			│                                                          ││             │
 			│                                                          ││             │
 			│                                                          ││             │
 			│                                                          ││             │
-			╰──────────────────────────────────────────────────────────╯│             │
-			╭branches──────────────────────────────────────────────────╮│             │
 			│                                                          ││             │
 			│                                                          ││             │
 			│                                                          ││             │
 			│                                                          ││             │
 			│                                                          ││             │
 			│                                                          ││             │
-			╰──────────────────────────────────────────────────────────╯│             │
-			╭commits───────────────────────────────────────────────────╮│             │
 			│                                                          ││             │
 			│                                                          ││             │
 			│                                                          ││             │
 			│                                                          ││             │
 			│                                                          ││             │
 			╰──────────────────────────────────────────────────────────╯│             │
-			╭stash─────────────────────────────────────────────────────╮│             │
-			│                                                          ││             │
-			╰──────────────────────────────────────────────────────────╯╰─────────────╯
-			<options──────────────────────────────────────────────────────>A<B────────>
-			A: statusSpacer1
-			B: information
+			<branches──────────────────────────────────────────────────>╰─────────────╯
+			╭commits─────────────────────────────────────────╮╭options────────────────╮
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			╰────────────────────────────────────────────────╯╰───────────────────────╯
 			`,
 		},
 		{
@@ -290,13 +278,7 @@ func TestGetWindowDimensions(t *testing.T) {
 				args.UserConfig.Gui.EnlargedSideViewLocation = "left"
 			},
 			expected: `
-			╭status──────────────────────────────╮╭main───────────────────────────────╮
-			│                                    ││                                   │
-			│                                    ││                                   │
-			│                                    ││                                   │
-			│                                    ││                                   │
-			│                                    ││                                   │
-			│                                    ││                                   │
+			╭files───────────────────────────────╮╭main───────────────────────────────╮
 			│                                    ││                                   │
 			│                                    ││                                   │
 			│                                    ││                                   │
@@ -309,9 +291,13 @@ func TestGetWindowDimensions(t *testing.T) {
 			│                                    ││                                   │
 			│                                    ││                                   │
 			╰────────────────────────────────────╯╰───────────────────────────────────╯
-			<options──────────────────────────────────────────────────────>A<B────────>
-			A: statusSpacer1
-			B: information
+			╭commits─────────────────────────────────────────╮╭options────────────────╮
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			╰────────────────────────────────────────────────╯╰───────────────────────╯
 			`,
 		},
 		{
@@ -322,9 +308,7 @@ func TestGetWindowDimensions(t *testing.T) {
 				args.UserConfig.Gui.EnlargedSideViewLocation = "top"
 			},
 			expected: `
-			╭status───────────────────────────────────────────────────────────────────╮
-			│                                                                         │
-			│                                                                         │
+			╭files────────────────────────────────────────────────────────────────────╮
 			│                                                                         │
 			│                                                                         │
 			│                                                                         │
@@ -336,14 +320,14 @@ func TestGetWindowDimensions(t *testing.T) {
 			│                                                                         │
 			│                                                                         │
 			│                                                                         │
-			│                                                                         │
-			│                                                                         │
-			│                                                                         │
-			│                                                                         │
 			╰─────────────────────────────────────────────────────────────────────────╯
-			<options──────────────────────────────────────────────────────>A<B────────>
-			A: statusSpacer1
-			B: information
+			╭commits─────────────────────────────────────────╮╭options────────────────╮
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			│                                                ││                       │
+			╰────────────────────────────────────────────────╯╰───────────────────────╯
 			`,
 		},
 		{
@@ -351,115 +335,34 @@ func TestGetWindowDimensions(t *testing.T) {
 			mutateArgs: func(args *WindowArrangementArgs) {
 				args.InSearchPrompt = true
 				args.SearchPrefix = "Search: "
-				args.Height = 6 // small height cos we only care about the bottom line
+				args.Height = 10 // enough height for search section to render
 			},
 			expected: `
-			<status─────────────────>╭main────────────────────────────────────────────╮
-			<files──────────────────>│                                                │
-			<branches───────────────>│                                                │
-			<commits────────────────>│                                                │
-			<stash──────────────────>╰────────────────────────────────────────────────╯
-			<A─────><search───────────────────────────────────────────────────────────>
+			╭files──────────────────╮╭main────────────────────────────────────────────╮
+			│                       ││                                                │
+			│                       ││                                                │
+			│                       ││                                                │
+			│                       ││                                                │
+			╰───────────────────────╯│                                                │
+			<branches───────────────>╰────────────────────────────────────────────────╯
+			╭commits─────────────────────────────────────────╮╭A─────╮╭search─────────╮
+			│                                                ││      ││               │
+			╰────────────────────────────────────────────────╯╰──────╯╰───────────────╯
 			A: searchPrefix
 			`,
 		},
 		{
-			name: "app status present",
+			name: "small height",
 			mutateArgs: func(args *WindowArrangementArgs) {
-				args.AppStatus = "Rebasing /"
-				args.Height = 6 // small height cos we only care about the bottom line
-			},
-			// We expect single-character spacers between the windows of the bottom line
-			expected: `
-			<status─────────────────>╭main────────────────────────────────────────────╮
-			<files──────────────────>│                                                │
-			<branches───────────────>│                                                │
-			<commits────────────────>│                                                │
-			<stash──────────────────>╰────────────────────────────────────────────────╯
-			<A───────>B<options───────────────────────────────────────────>C<D────────>
-			A: appStatus
-			B: statusSpacer2
-			C: statusSpacer1
-			D: information
-			`,
-		},
-		{
-			name: "information present without options",
-			mutateArgs: func(args *WindowArrangementArgs) {
-				args.Height = 6                            // small height cos we only care about the bottom line
-				args.UserConfig.Gui.ShowBottomLine = false // this hides the options window
-				args.IsAnyModeActive = true                // this means we show the bottom line despite the user config
-			},
-			// We expect a spacer on the left of the bottom line so that the information
-			// window is right-aligned
-			expected: `
-			<status─────────────────>╭main────────────────────────────────────────────╮
-			<files──────────────────>│                                                │
-			<branches───────────────>│                                                │
-			<commits────────────────>│                                                │
-			<stash──────────────────>╰────────────────────────────────────────────────╯
-			<statusSpacer1────────────────────────────────────────────────>A<B────────>
-			A: statusSpacer2
-			B: information
-			`,
-		},
-		{
-			name: "app status present without information or options",
-			mutateArgs: func(args *WindowArrangementArgs) {
-				args.Height = 6                            // small height cos we only care about the bottom line
-				args.UserConfig.Gui.ShowBottomLine = false // this hides the options window
-				args.IsAnyModeActive = false
-				args.AppStatus = "Rebasing /"
-			},
-			// We expect the app status window to take up all the available space
-			expected: `
-			<status─────────────────>╭main────────────────────────────────────────────╮
-			<files──────────────────>│                                                │
-			<branches───────────────>│                                                │
-			<commits────────────────>│                                                │
-			<stash──────────────────>╰────────────────────────────────────────────────╯
-			<appStatus────────────────────────────────────────────────────────────────>
-			`,
-		},
-		{
-			name: "app status present with information but without options",
-			mutateArgs: func(args *WindowArrangementArgs) {
-				args.Height = 6                            // small height cos we only care about the bottom line
-				args.UserConfig.Gui.ShowBottomLine = false // this hides the options window
-				args.IsAnyModeActive = true
-				args.AppStatus = "Rebasing /"
+				args.Height = 6
 			},
 			expected: `
-			<status─────────────────>╭main────────────────────────────────────────────╮
-			<files──────────────────>│                                                │
-			<branches───────────────>│                                                │
-			<commits────────────────>│                                                │
-			<stash──────────────────>╰────────────────────────────────────────────────╯
-			<A───────><statusSpacer1──────────────────────────────────────>B<C────────>
-			A: appStatus
-			B: statusSpacer2
-			C: information
-			`,
-		},
-		{
-			name: "app status present with very long information but without options",
-			mutateArgs: func(args *WindowArrangementArgs) {
-				args.Height = 6                            // small height cos we only care about the bottom line
-				args.Width = 55                            // smaller width so that not all bottom line views fit
-				args.UserConfig.Gui.ShowBottomLine = false // this hides the options window
-				args.IsAnyModeActive = true
-				args.AppStatus = "Rebasing /"
-				args.InformationStr = "Showing output for: git diff deadbeef fa1afe1 -- (Reset)"
-			},
-			expected: `
-			<status───────────>╭main──────────────────────────────╮
-			<files────────────>│                                  │
-			<branches─────────>│                                  │
-			<commits──────────>│                                  │
-			<stash────────────>╰──────────────────────────────────╯
-			<A───────>B<information──────────────────────────────────────────>
-			A: appStatus
-			B: statusSpacer2
+			╭files──────────────────╮╭main────────────────────────────────────────────╮
+			│                       ││                                                │
+			╰───────────────────────╯│                                                │
+			<branches───────────────>╰────────────────────────────────────────────────╯
+			╭commits─────────────────────────────────────────╮╭options────────────────╮
+			╰────────────────────────────────────────────────╯╰───────────────────────╯
 			`,
 		},
 	}

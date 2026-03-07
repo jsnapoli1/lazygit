@@ -105,31 +105,16 @@ func (self *OptionsMapMgr) renderContextOptionsMap() {
 }
 
 func (self *OptionsMapMgr) formatBindingInfos(bindingInfos []bindingInfo) string {
-	width := self.c.Views().Options.InnerWidth() - 2 // -2 for some padding
 	var builder strings.Builder
-	ellipsis := "…"
-	separator := " | "
 
-	length := 0
-
+	// Display each binding on its own line for vertical scrolling
 	for i, info := range bindingInfos {
-		plainText := fmt.Sprintf("%s: %s", info.description, info.key)
-
-		// Check if adding the next formatted string exceeds the available width
-		textLen := utils.StringWidth(plainText)
-		if i > 0 && length+len(separator)+textLen > width {
-			builder.WriteString(theme.OptionsFgColor.Sprint(separator + ellipsis))
-			break
-		}
-
-		formatted := info.style.Sprintf(plainText)
-
 		if i > 0 {
-			builder.WriteString(theme.OptionsFgColor.Sprint(separator))
-			length += len(separator)
+			builder.WriteString("\n")
 		}
+		plainText := fmt.Sprintf("%s: %s", info.key, info.description)
+		formatted := info.style.Sprintf(plainText)
 		builder.WriteString(formatted)
-		length += textLen
 	}
 
 	return builder.String()

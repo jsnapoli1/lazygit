@@ -135,5 +135,5 @@ func (self *WindowHelper) WindowForView(viewName string) string {
 }
 
 func (self *WindowHelper) SideWindows() []string {
-	return []string{"status", "files", "branches", "commits", "stash"}
+	return []string{"files", "branches", "commits"}
 }

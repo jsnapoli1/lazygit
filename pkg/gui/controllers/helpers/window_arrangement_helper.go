@@ -1,16 +1,13 @@
 package helpers
 
 import (
-	"fmt"
 	mapsPkg "maps"
 	"math"
-	"strings"
 
 	"github.com/jesseduffield/lazycore/pkg/boxlayout"
 	"github.com/jesseduffield/lazygit/pkg/config"
 	"github.com/jesseduffield/lazygit/pkg/gui/types"
 	"github.com/jesseduffield/lazygit/pkg/utils"
-	"golang.org/x/exp/slices"
 )
 
 // In this file we use the boxlayout package, along with knowledge about the app's state,
@@ -128,21 +125,16 @@ func GetWindowDimensions(args WindowArrangementArgs) map[string]boxlayout.Dimens
 		sidePanelsDirection = boxlayout.ROW
 	}
 
-	showInfoSection := args.UserConfig.Gui.ShowBottomLine ||
-		args.InSearchPrompt ||
-		args.IsAnyModeActive ||
-		args.AppStatus != ""
-	infoSectionSize := 0
-	if showInfoSection {
-		infoSectionSize = 1
-	}
+	// Determine weights for top section (files/branches + main) vs bottom section (commits + options)
+	topSectionWeight, commitsSectionWeight := getVerticalSectionWeights(args)
 
 	root := &boxlayout.Box{
 		Direction: boxlayout.ROW,
+		Weight:    1,
 		Children: []*boxlayout.Box{
 			{
 				Direction: sidePanelsDirection,
-				Weight:    1,
+				Weight:    topSectionWeight,
 				Children: []*boxlayout.Box{
 					{
 						Direction:           boxlayout.ROW,
@@ -158,8 +150,8 @@ func GetWindowDimensions(args WindowArrangementArgs) map[string]boxlayout.Dimens
 			},
 			{
 				Direction: boxlayout.COLUMN,
-				Size:      infoSectionSize,
-				Children:  infoSectionChildren(args),
+				Weight:    commitsSectionWeight,
+				Children:  bottomSectionChildren(args),
 			},
 		},
 	}
@@ -168,6 +160,23 @@ func GetWindowDimensions(args WindowArrangementArgs) map[string]boxlayout.Dimens
 	limitWindows := boxlayout.ArrangeWindows(&boxlayout.Box{Window: "limit"}, 0, 0, args.Width, args.Height)
 
 	return MergeMaps(layerOneWindows, limitWindows)
+}
+
+func getVerticalSectionWeights(args WindowArrangementArgs) (int, int) {
+	// In full screen mode with commits focused, hide the top section
+	if args.ScreenMode == types.SCREEN_FULL && args.CurrentSideWindow == "commits" {
+		return 0, 1
+	}
+	// In full screen mode with files/branches focused, hide the commits section
+	if args.ScreenMode == types.SCREEN_FULL && (args.CurrentSideWindow == "files" || args.CurrentSideWindow == "branches") {
+		return 1, 0
+	}
+	// In half screen mode with commits focused, show commits larger
+	if args.ScreenMode == types.SCREEN_HALF && args.CurrentSideWindow == "commits" {
+		return 1, 2
+	}
+	// Default: top section gets 2x the height of commits section
+	return 2, 1
 }
 
 func mainPanelChildren(args WindowArrangementArgs) []*boxlayout.Box {
@@ -264,110 +273,6 @@ func getMidSectionWeights(args WindowArrangementArgs) (int, int) {
 	return sideSectionWeight, mainSectionWeight
 }
 
-func infoSectionChildren(args WindowArrangementArgs) []*boxlayout.Box {
-	if args.InSearchPrompt {
-		return []*boxlayout.Box{
-			{
-				Window: "searchPrefix",
-				Size:   utils.StringWidth(args.SearchPrefix),
-			},
-			{
-				Window: "search",
-				Weight: 1,
-			},
-		}
-	}
-
-	statusSpacerPrefix := "statusSpacer"
-	spacerBoxIndex := 0
-	maxSpacerBoxIndex := 2 // See pkg/gui/types/views.go
-	// Returns a box with size 1 to be used as padding between views
-	spacerBox := func() *boxlayout.Box {
-		spacerBoxIndex++
-
-		if spacerBoxIndex > maxSpacerBoxIndex {
-			panic("Too many spacer boxes")
-		}
-
-		return &boxlayout.Box{Window: fmt.Sprintf("%s%d", statusSpacerPrefix, spacerBoxIndex), Size: 1}
-	}
-
-	// Returns a box with weight 1 to be used as flexible padding between views
-	flexibleSpacerBox := func() *boxlayout.Box {
-		spacerBoxIndex++
-
-		if spacerBoxIndex > maxSpacerBoxIndex {
-			panic("Too many spacer boxes")
-		}
-
-		return &boxlayout.Box{Window: fmt.Sprintf("%s%d", statusSpacerPrefix, spacerBoxIndex), Weight: 1}
-	}
-
-	// Adds spacer boxes inbetween given boxes
-	insertSpacerBoxes := func(boxes []*boxlayout.Box) []*boxlayout.Box {
-		for i := len(boxes) - 1; i >= 1; i-- {
-			// ignore existing spacer boxes
-			if !strings.HasPrefix(boxes[i].Window, statusSpacerPrefix) {
-				boxes = slices.Insert(boxes, i, spacerBox())
-			}
-		}
-		return boxes
-	}
-
-	// First collect the real views that we want to show, we'll add spacers in
-	// between at the end
-	var result []*boxlayout.Box
-
-	if !args.InDemo {
-		// app status appears very briefly in demos and dislodges the caption,
-		// so better not to show it at all
-		if args.AppStatus != "" {
-			result = append(result, &boxlayout.Box{Window: "appStatus", Size: utils.StringWidth(args.AppStatus)})
-		}
-	}
-
-	if args.UserConfig.Gui.ShowBottomLine {
-		result = append(result, &boxlayout.Box{Window: "options", Weight: 1})
-	}
-
-	if (!args.InDemo && args.UserConfig.Gui.ShowBottomLine) || args.IsAnyModeActive {
-		result = append(result,
-			&boxlayout.Box{
-				Window: "information",
-				// unlike appStatus, informationStr has various colors so we need to decolorise before taking the length
-				Size: utils.StringWidth(utils.Decolorise(args.InformationStr)),
-			})
-	}
-
-	if len(result) == 2 && result[0].Window == "appStatus" {
-		// Only status and information are showing; need to insert a flexible
-		// spacer between the two, so that information is right-aligned. Note
-		// that the call to insertSpacerBoxes below will still insert a 1-char
-		// spacer in addition (right after the flexible one); this is needed for
-		// the case that there's not enough room, to ensure there's always at
-		// least one space.
-		result = slices.Insert(result, 1, flexibleSpacerBox())
-	} else if len(result) == 1 {
-		if result[0].Window == "information" {
-			// Only information is showing; need to add a flexible spacer so
-			// that information is right-aligned
-			result = slices.Insert(result, 0, flexibleSpacerBox())
-		} else {
-			// Only status is showing; need to make it flexible so that it
-			// extends over the whole width
-			result[0].Size = 0
-			result[0].Weight = 1
-		}
-	}
-
-	if len(result) > 0 {
-		// If we have at least one view, insert 1-char wide spacer boxes between them.
-		result = insertSpacerBoxes(result)
-	}
-
-	return result
-}
-
 func splitMainPanelSideBySide(args WindowArrangementArgs) bool {
 	if !args.SplitMainPanel {
 		return false
@@ -402,25 +307,19 @@ func getExtrasWindowSize(args WindowArrangementArgs) int {
 	return baseSize + frameSize
 }
 
-// The stash window by default only contains one line so that it's not hogging
-// too much space, but if you access it it should take up some space. This is
-// the default behaviour when accordion mode is NOT in effect. If it is in effect
-// then when it's accessed it will have weight 2, not 1.
-func getDefaultStashWindowBox(args WindowArrangementArgs) *boxlayout.Box {
-	box := &boxlayout.Box{Window: "stash"}
-	// if the stash window is anywhere in our stack we should enlargen it
-	if args.CurrentSideWindow == "stash" {
-		box.Weight = 1
-	} else {
-		box.Size = 3
-	}
-
-	return box
-}
-
 func sidePanelChildren(args WindowArrangementArgs) func(width int, height int) []*boxlayout.Box {
 	return func(width int, height int) []*boxlayout.Box {
 		if args.ScreenMode == types.SCREEN_FULL || args.ScreenMode == types.SCREEN_HALF {
+			// In full/half screen mode, only files and branches are in this section
+			// If commits is focused, we still show files/branches normally (commits is in its own section)
+			if args.CurrentSideWindow == "commits" {
+				// When commits is focused, files/branches should still be visible in their section
+				return []*boxlayout.Box{
+					{Window: "files", Weight: 1},
+					{Window: "branches", Weight: 1},
+				}
+			}
+
 			fullHeightBox := func(window string) *boxlayout.Box {
 				if window == args.CurrentSideWindow {
 					return &boxlayout.Box{
@@ -436,11 +335,8 @@ func sidePanelChildren(args WindowArrangementArgs) func(width int, height int) [
 			}
 
 			return []*boxlayout.Box{
-				fullHeightBox("status"),
 				fullHeightBox("files"),
 				fullHeightBox("branches"),
-				fullHeightBox("commits"),
-				fullHeightBox("stash"),
 			}
 		} else if height >= 28 {
 			accordionMode := args.UserConfig.Gui.ExpandFocusedSidePanel
@@ -456,14 +352,8 @@ func sidePanelChildren(args WindowArrangementArgs) func(width int, height int) [
 			}
 
 			return []*boxlayout.Box{
-				{
-					Window: "status",
-					Size:   3,
-				},
 				accordionBox(&boxlayout.Box{Window: "files", Weight: 1}),
 				accordionBox(&boxlayout.Box{Window: "branches", Weight: 1}),
-				accordionBox(&boxlayout.Box{Window: "commits", Weight: 1}),
-				accordionBox(getDefaultStashWindowBox(args)),
 			}
 		}
 
@@ -473,6 +363,8 @@ func sidePanelChildren(args WindowArrangementArgs) func(width int, height int) [
 		}
 
 		squashedSidePanelBox := func(window string) *boxlayout.Box {
+			// For files and branches, check if either is focused
+			// (commits is in a separate section so it won't match here)
 			if window == args.CurrentSideWindow {
 				return &boxlayout.Box{
 					Window: window,
@@ -486,12 +378,76 @@ func sidePanelChildren(args WindowArrangementArgs) func(width int, height int) [
 			}
 		}
 
+		// If commits is focused, both files and branches get squashed
+		// We need at least one with Weight to avoid empty weights
+		if args.CurrentSideWindow == "commits" {
+			return []*boxlayout.Box{
+				{Window: "files", Weight: 1},
+				{Window: "branches", Weight: 1},
+			}
+		}
+
 		return []*boxlayout.Box{
-			squashedSidePanelBox("status"),
 			squashedSidePanelBox("files"),
 			squashedSidePanelBox("branches"),
-			squashedSidePanelBox("commits"),
-			squashedSidePanelBox("stash"),
 		}
+	}
+}
+
+func commitsPanelChildren(args WindowArrangementArgs) func(width int, height int) []*boxlayout.Box {
+	return func(width int, height int) []*boxlayout.Box {
+		// In full/half screen mode, show commits at full size when focused
+		if (args.ScreenMode == types.SCREEN_FULL || args.ScreenMode == types.SCREEN_HALF) &&
+			args.CurrentSideWindow == "commits" {
+			return []*boxlayout.Box{
+				{Window: "commits", Weight: 1},
+			}
+		}
+
+		return []*boxlayout.Box{
+			{Window: "commits", Weight: 1},
+		}
+	}
+}
+
+func bottomSectionChildren(args WindowArrangementArgs) []*boxlayout.Box {
+	// Commits takes 2/3 width, options section takes 1/3
+	optionsDirection := boxlayout.ROW
+	if args.InSearchPrompt {
+		// Search needs horizontal layout (searchPrefix | search)
+		optionsDirection = boxlayout.COLUMN
+	}
+	return []*boxlayout.Box{
+		{
+			Direction:           boxlayout.ROW,
+			Weight:              2,
+			ConditionalChildren: commitsPanelChildren(args),
+		},
+		{
+			Direction: optionsDirection,
+			Weight:    1,
+			Children:  optionsSectionChildren(args),
+		},
+	}
+}
+
+func optionsSectionChildren(args WindowArrangementArgs) []*boxlayout.Box {
+	// Show search prompt if active, otherwise show options
+	if args.InSearchPrompt {
+		return []*boxlayout.Box{
+			{
+				Window: "searchPrefix",
+				Size:   utils.StringWidth(args.SearchPrefix),
+			},
+			{
+				Window: "search",
+				Weight: 1,
+			},
+		}
+	}
+
+	// Show options (keybind notes) in this section
+	return []*boxlayout.Box{
+		{Window: "options", Weight: 1},
 	}
 }

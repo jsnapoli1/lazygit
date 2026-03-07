@@ -200,6 +200,12 @@ func (gui *Gui) GetInitialKeybindings() ([]*types.Binding, []*gocui.ViewMouseBin
 			OpensMenu:   true,
 		},
 		{
+			ViewName:    "",
+			Key:         opts.GetKey(opts.Config.Universal.ToggleCommandLog),
+			Handler:     opts.Guards.NoPopupPanel(gui.handleToggleCommandLogPopup),
+			Description: gui.c.Tr.ToggleCommandLogPopup,
+		},
+		{
 			ViewName:    "main",
 			Key:         gocui.MouseWheelDown,
 			Handler:     gui.scrollDownMain,
